@@ -7,12 +7,12 @@ export function CategoryNav() {
   const activeCategory = location.pathname === "/" ? searchParams.get("category") : null;
 
   const linkClass = (isActive: boolean) =>
-    `focus-ring whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
-      isActive ? "border-ink bg-ink text-white" : "border-border text-muted hover:border-ink hover:text-ink"
+    `focus-ring whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+      isActive ? "border-ink bg-ink text-white scale-105" : "border-border text-muted hover:border-ink hover:text-ink"
     }`;
 
   return (
-    <nav className="flex items-center gap-2 overflow-x-auto">
+    <nav className="no-scrollbar flex items-center gap-2 overflow-x-auto">
       <Link to="/" className={linkClass(!activeCategory)}>
         All
       </Link>

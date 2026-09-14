@@ -33,18 +33,26 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
 
   if (!products || products.length === 0) {
     return (
-      <EmptyState
-        icon={PackageSearch}
-        title="No products found"
-        description="Check back soon — new arrivals are on the way."
-      />
+      <div className="animate-fade-in">
+        <EmptyState
+          icon={PackageSearch}
+          title="No products found"
+          description="Check back soon — new arrivals are on the way."
+        />
+      </div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((product) => (
-        <ProductCard key={product._id} product={product} />
+      {products.map((product, i) => (
+        <div
+          key={product._id}
+          className="grid animate-fade-in-up"
+          style={{ animationDelay: `${Math.min(i * 40, 400)}ms` }}
+        >
+          <ProductCard product={product} />
+        </div>
       ))}
     </div>
   );

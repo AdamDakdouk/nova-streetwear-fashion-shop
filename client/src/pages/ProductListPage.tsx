@@ -33,7 +33,7 @@ export function ProductListPage() {
         </div>
         <CategoryNav />
       </div>
-      <ProductGrid products={filtered} isLoading={isLoading} />
+      <ProductGrid key={`${category ?? "all"}:${query}`} products={filtered} isLoading={isLoading} />
     </div>
   );
 }
