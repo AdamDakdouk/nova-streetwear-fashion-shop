@@ -1,11 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
+import multer from "multer";
 import { ApiError } from "../utils/ApiError";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction) {
   if (err instanceof ApiError) {
     res.status(err.statusCode).json({ message: err.message, details: err.details });
+    return;
+  }
+
+  if (err instanceof multer.MulterError) {
+    const message = err.code === "LIMIT_FILE_SIZE" ? "Image must be 5MB or smaller" : err.message;
+    res.status(400).json({ message });
     return;
   }
 

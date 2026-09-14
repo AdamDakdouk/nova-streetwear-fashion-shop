@@ -6,3 +6,6 @@ build/
 .DS_Store
 coverage/
 .claude/
+
+# Runtime-uploaded admin images — not seed data, not meant to be versioned
+client/public/uploads/

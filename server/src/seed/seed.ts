@@ -68,13 +68,47 @@ async function seedDemoUser(): Promise<void> {
   const email = "demo@example.com";
   const existing = await User.findOne({ email });
   if (existing) {
-    console.log(`[seed] demo user already exists (${email})`);
+    // Re-running seed after the email-verification feature landed shouldn't leave an
+    // old demo account permanently locked out for lacking `emailVerified`.
+    if (!existing.emailVerified) {
+      existing.emailVerified = true;
+      await existing.save();
+      console.log(`[seed] marked existing demo user verified (${email})`);
+    } else {
+      console.log(`[seed] demo user already exists (${email})`);
+    }
     return;
   }
 
   const passwordHash = await bcrypt.hash("Passw0rd!", 10);
-  await User.create({ name: "Demo User", email, passwordHash });
+  await User.create({ name: "Demo User", email, passwordHash, emailVerified: true });
   console.log(`[seed] created demo user -> ${email} / Passw0rd!`);
+}
+
+async function seedAdminUser(): Promise<void> {
+  const email = "admin@nova.com";
+  const existing = await User.findOne({ email });
+  if (existing) {
+    if (existing.role !== "admin" || !existing.emailVerified) {
+      existing.role = "admin";
+      existing.emailVerified = true;
+      await existing.save();
+      console.log(`[seed] marked existing admin user verified/admin (${email})`);
+    } else {
+      console.log(`[seed] admin user already exists (${email})`);
+    }
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash("AdminPass123!", 10);
+  await User.create({
+    name: "Admin",
+    email,
+    passwordHash,
+    role: "admin",
+    emailVerified: true,
+  });
+  console.log(`[seed] created admin user -> ${email} / AdminPass123!`);
 }
 
 async function main() {
@@ -86,9 +120,11 @@ async function main() {
 
   await seedProducts();
   await seedDemoUser();
+  await seedAdminUser();
 
   console.log("\n[seed] done.");
-  console.log("[seed] demo login -> demo@example.com / Passw0rd!\n");
+  console.log("[seed] demo login  -> demo@example.com / Passw0rd!");
+  console.log("[seed] admin login -> admin@nova.com / AdminPass123! (sign in at /admin/login)\n");
 
   await mongoose.disconnect();
   process.exit(0);

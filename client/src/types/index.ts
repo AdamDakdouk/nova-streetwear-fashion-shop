@@ -39,6 +39,9 @@ export interface Product {
   totalStock: number;
 }
 
+/** Admin CRUD endpoints return the raw product document — no computed `totalStock`. */
+export type AdminProduct = Omit<Product, "totalStock">;
+
 export type VariantSelection = Record<string, string>;
 
 export interface CartLine {
@@ -78,8 +81,11 @@ export interface Order {
   placedAt: string;
 }
 
+export type UserRole = "user" | "admin";
+
 export interface User {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
 }
