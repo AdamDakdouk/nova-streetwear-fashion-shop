@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { LogoutConfirmDialog } from "./LogoutConfirmDialog";
 
 /** Gates the admin dashboard behind both authentication and role — a signed-in
  * shopper who isn't an admin is bounced just as hard as a signed-out visitor. */
@@ -12,5 +13,10 @@ export function AdminRoute() {
     return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <LogoutConfirmDialog />
+    </>
+  );
 }

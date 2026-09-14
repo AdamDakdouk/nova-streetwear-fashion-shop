@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { useLogoutDialogStore } from "../../store/logoutDialogStore";
 import { useAuthStore } from "../../store/authStore";
@@ -15,6 +15,8 @@ export function LogoutConfirmDialog() {
   const logout = useAuthStore((s) => s.logout);
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminArea = location.pathname.startsWith("/admin");
 
   const [phase, setPhase] = useState<"confirm" | "loading">("confirm");
 
@@ -35,12 +37,12 @@ export function LogoutConfirmDialog() {
     const timer = setTimeout(() => {
       logout();
       close();
-      navigate("/");
+      navigate(isAdminArea ? "/admin/login" : "/");
       showToast("Logged out successfully");
     }, LOGOUT_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [isOpen, phase, logout, close, navigate, showToast]);
+  }, [isOpen, phase, logout, close, navigate, showToast, isAdminArea]);
 
   useEffect(() => {
     if (!isOpen || phase !== "confirm") return;
@@ -66,10 +68,14 @@ export function LogoutConfirmDialog() {
         </div>
 
         <h2 id="logout-dialog-title" className="mt-4 font-heading text-lg font-semibold text-ink">
-          Log out of NOVA?
+          {isAdminArea ? "Log out of the admin dashboard?" : "Log out of NOVA?"}
         </h2>
         <p className="mt-1 text-sm text-muted">
-          {isLoading ? "Logging you out…" : "You'll need to sign in again to access your cart and wishlist."}
+          {isLoading
+            ? "Logging you out…"
+            : isAdminArea
+              ? "Any unsaved changes on this page will be lost."
+              : "You'll need to sign in again to access your cart and wishlist."}
         </p>
 
         {isLoading ? (
