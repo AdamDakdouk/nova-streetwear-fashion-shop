@@ -17,7 +17,8 @@
   - If this were a multi-warehouse, high-traffic store, I'd split `Cart` into its own collection keyed by user, and likely move to a real per-SKU inventory model with reservation/holds during checkout.
 - **`Order`** is its own collection with a frozen snapshot of each line's title/price at purchase time — orders must not change retroactively if the product catalog changes later. This is the one place a normalized "just reference the product" approach would be a real bug, not just a simplification.
 - **Money as integer cents** everywhere (`price`, `unitPrice`, `subtotal`, `total`) — avoids floating point drift in totals; formatted to dollars only at the UI edge.
-- **Indexes**: `email` unique on `User`, `slug` unique on `Product`. Both are the natural lookup keys and the natural uniqueness constraints.
+- **Indexes**: `email` unique on `User`, `slug` unique on `Product`, and a compound unique index `{product, user}` on `Review` — the last one is what makes "resubmitting a review updates it" an upsert instead of application-level duplicate-checking logic.
+- **`Review` rating average is computed live via aggregation, not stored denormalized on `Product`.** Considered caching `avgRating`/`reviewCount` directly on the product document (cheaper reads), but at 15 products a `$group` aggregate is trivial, and it means the number shown can never drift from the underlying reviews — no risk of forgetting to recompute on edit/delete. Would revisit if the catalog were large enough for the aggregate to show up in a profiler.
 
 ## What I'd change for a "real" production version
 

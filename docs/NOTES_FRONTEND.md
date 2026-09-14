@@ -37,6 +37,12 @@
 - The variant editor (`VariantAxisEditor`) mirrors the exact nested shape the backend expects (`variants: [{ name, options: [{ value, stock, images? }] }]`) directly in component state — no intermediate form-library schema — since the shape is small and the whole point is that what's submitted is what's stored, one-to-one.
 - Image uploads happen immediately on file selection (not deferred to form submit) — each file is POSTed to `/api/admin/upload` as soon as it's picked, and the returned URL is what gets stored in form state. Keeps the "did this upload actually succeed" question answered before the admin ever hits Save, instead of surfacing an upload failure buried inside a larger product-save error.
 
+## Product reviews
+
+- `ReviewSection` finds "my review" by comparing `review.user` against the signed-in user's id from `authStore` inside the fetched review list — no separate "get my review" endpoint. Simpler request surface for a per-product review count that's realistically always small.
+- `StarRating` renders half-star precision (a clipped `overflow-hidden` wrapper at `fill * 100%` width over an outline star) rather than rounding a 4.3 average down to a blunt 4 or up to 5 — small detail, but a rounded-off average is the kind of thing that reads as sloppy once you notice it.
+- Product cards only render the rating row when `reviewCount > 0` — with every product starting at zero reviews, showing "No reviews yet" on all 15 cards at once would be more noise than signal. The detail page's larger `StarRating` does show "No reviews yet" since it's one product in focus, not a repeated line down a grid.
+
 ## Responsive approach
 
 - Mobile-first Tailwind breakpoints (`sm/md/lg/xl`), a product grid that goes 1 → 2 → 3 → 4 columns, a slide-in `MobileNav` below `md` instead of trying to cram the desktop nav into a small viewport, and a cart summary that sits inline on mobile vs. a sticky side column on `lg+`.

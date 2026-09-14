@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { formatCurrency } from "../../lib/formatCurrency";
 import { findAxis, formatSizeList } from "../../lib/variantDisplay";
 import { ColorSwatchDots } from "./ColorSwatchDots";
+import { StarRating } from "./StarRating";
 import { useAddToWishlist, useRemoveFromWishlist, useWishlist } from "../../hooks/useWishlist";
 import { useAuthStore } from "../../store/authStore";
 import { useAuthRequiredDialogStore } from "../../store/authRequiredDialogStore";
@@ -85,6 +86,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <h3 className="font-heading text-sm font-semibold leading-snug text-ink">{product.title}</h3>
 
+        {product.reviewCount > 0 && <StarRating rating={product.avgRating} reviewCount={product.reviewCount} />}
         {colors.length > 0 && <ColorSwatchDots colors={colors} />}
         {sizeList && <p className="text-xs tracking-wide text-muted">{sizeList}</p>}
 

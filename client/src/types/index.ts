@@ -23,6 +23,8 @@ export interface ProductSummary {
   thumbnail: string;
   category: string;
   variants: VariantAxisSummary[];
+  avgRating: number;
+  reviewCount: number;
 }
 
 export interface Product {
@@ -37,10 +39,23 @@ export interface Product {
   baseStock: number;
   category: string;
   totalStock: number;
+  avgRating: number;
+  reviewCount: number;
 }
 
-/** Admin CRUD endpoints return the raw product document — no computed `totalStock`. */
-export type AdminProduct = Omit<Product, "totalStock">;
+/** Admin CRUD endpoints return the raw product document — no computed `totalStock`/rating. */
+export type AdminProduct = Omit<Product, "totalStock" | "avgRating" | "reviewCount">;
+
+export interface Review {
+  _id: string;
+  product: string;
+  user: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type VariantSelection = Record<string, string>;
 

@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { Product } from "../models/Product";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../middleware/asyncHandler";
+import { getRatingSummariesByProduct, getRatingSummary } from "../services/review.service";
 
 export const list = asyncHandler(async (_req: Request, res: Response) => {
   const products = await Product.find().select("slug title price thumbnail variants category");
+  const ratings = await getRatingSummariesByProduct();
 
   const summaries = products.map((p) => ({
     _id: p._id,
@@ -19,6 +21,7 @@ export const list = asyncHandler(async (_req: Request, res: Response) => {
       name: axis.name,
       options: axis.options.map((opt) => ({ value: opt.value, stock: opt.stock })),
     })),
+    ...(ratings.get(String(p._id)) ?? { avgRating: 0, reviewCount: 0 }),
   }));
 
   res.status(200).json(summaries);
@@ -42,5 +45,7 @@ export const getById = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(404, "Product not found");
   }
 
-  res.status(200).json({ ...product.toObject(), totalStock: totalStockOf(product) });
+  const rating = await getRatingSummary(req.params.id);
+
+  res.status(200).json({ ...product.toObject(), totalStock: totalStockOf(product), ...rating });
 });

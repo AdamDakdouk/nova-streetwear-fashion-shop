@@ -40,6 +40,13 @@
 - Image uploads (`multer`, disk storage) write into `client/public/uploads/` — the same folder the seed script's copy step already targets for catalog photos — so the frontend's own static file serving picks them up with zero extra wiring, in dev via Vite and in a production build because `public/` gets copied into `dist/` verbatim. **Known limitation**: that copy happens once, at build time — an admin uploading a new image *after* a production build won't appear in that already-built `dist/`. Fine for this take-home's actual run mode (`npm run dev`), not something a real deployment would ship as-is (that would want the upload destination to be an actual persistent volume or object storage, decoupled from the frontend build).
 - Deleting a product is a genuinely new capability this feature introduces, and it exposed an existing edge case: a product that's still sitting in someone's wishlist. `Product.findByIdAndDelete` doesn't touch other collections, so a wishlisted-then-deleted product used to come back from `populate("wishlist")` as a `null` entry — the wishlist endpoints now filter those out before responding, rather than handing the frontend a wishlist item with no product underneath it. Cart lines already handled this gracefully (skip the line if the product 404s); this closes the same gap for wishlists.
 
+## Product reviews
+
+- Added after the base spec, at the user's request — genuinely no ratings anywhere in the original PDF, and deliberately not faked: every product starts at 0 reviews rather than showing decorative placeholder stars.
+- Explicitly not gated to "verified purchase" — any authenticated user can review any product once. A real storefront would check the user has an `Order` containing that product first; skipped here because the plan is to review from multiple manually-created test accounts, not real completed orders.
+- Reviews live under `/api/products/:id/reviews` (nested route, `mergeParams` router) rather than a flat `/api/reviews?product=...` — the product id is always the access pattern, so it belongs in the path.
+- Submitting a second review for the same product is a `findOneAndUpdate` with `upsert: true` against the unique `{product, user}` index, not a 409 — "leave a review" and "edit your review" are the same form and the same request on the frontend, no separate edit flow to build or explain.
+
 ## Checkout / concurrency
 
 - `placeOrder` re-validates every cart line's stock *before* mutating anything (see `order.service.ts`), so a stale cart (stock changed since the item was added) fails cleanly with a 409 and leaves the cart and product stock untouched — verified in `tests/unit/order.service.test.ts`.

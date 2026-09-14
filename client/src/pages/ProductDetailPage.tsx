@@ -5,6 +5,8 @@ import { useProduct } from "../hooks/useProducts";
 import { useAddToCart } from "../hooks/useCart";
 import { useAddToWishlist, useRemoveFromWishlist, useWishlist } from "../hooks/useWishlist";
 import { VariantSelector } from "../components/product/VariantSelector";
+import { StarRating } from "../components/product/StarRating";
+import { ReviewSection } from "../components/product/ReviewSection";
 import { QuantityStepper } from "../components/ui/QuantityStepper";
 import { Button } from "../components/ui/Button";
 import { PageSpinner, Spinner } from "../components/ui/Spinner";
@@ -199,6 +201,9 @@ export function ProductDetailPage() {
         <div className="flex flex-col">
           <p className="text-xs font-medium uppercase tracking-wider text-muted">{product.category}</p>
           <h1 className="mt-1 font-heading text-2xl font-bold text-ink">{product.title}</h1>
+          <div className="mt-2">
+            <StarRating rating={product.avgRating} reviewCount={product.reviewCount} size="md" />
+          </div>
           <p className="mt-2 text-xl font-semibold tabular-nums text-ink">{formatCurrency(product.price)}</p>
           <p className="mt-4 text-sm leading-relaxed text-muted">{product.description}</p>
 
@@ -261,6 +266,8 @@ export function ProductDetailPage() {
           )}
         </div>
       </div>
+
+        <ReviewSection productId={product._id} />
       </div>
     </div>
   );
