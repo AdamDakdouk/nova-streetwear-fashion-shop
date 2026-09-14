@@ -137,7 +137,7 @@ export function ProductDetailPage() {
 
   return (
     <div>
-      <div className="sticky top-16 z-30 border-b border-border/70 bg-background/95 backdrop-blur">
+      <div className="sticky top-24 z-30 border-b border-border/70 bg-background/95 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
           <button
             onClick={() => navigate(-1)}
@@ -239,7 +239,7 @@ export function ProductDetailPage() {
               type="button"
               onClick={handleToggleWishlist}
               disabled={addToWishlist.isPending || removeFromWishlist.isPending}
-              className={`focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md border px-6 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-full border px-6 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                 isInWishlist
                   ? "border-accent bg-accent-light text-accent"
                   : "border-border bg-transparent text-ink hover:bg-black/5"

@@ -90,7 +90,7 @@ export function LogoutConfirmDialog() {
             <button
               type="button"
               onClick={() => setPhase("loading")}
-              className="focus-ring h-11 flex-1 rounded-md bg-danger text-sm font-medium text-white transition-colors hover:bg-red-700"
+              className="focus-ring h-11 flex-1 rounded-full bg-danger text-sm font-medium text-white transition-colors hover:bg-red-700"
             >
               Log Out
             </button>

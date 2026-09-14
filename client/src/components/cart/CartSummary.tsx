@@ -10,7 +10,7 @@ interface CartSummaryProps {
 
 export function CartSummary({ itemCount, total, ctaLabel = "Proceed to Checkout", ctaTo = "/checkout" }: CartSummaryProps) {
   const ctaClasses =
-    "focus-ring mt-5 flex h-12 w-full items-center justify-center rounded-md text-base font-medium transition-colors";
+    "focus-ring mt-5 flex h-12 w-full items-center justify-center rounded-full text-base font-medium transition-colors";
 
   return (
     <div className="rounded-lg border border-border bg-surface p-5 shadow-card">

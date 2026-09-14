@@ -37,6 +37,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+      <div className="bg-ink px-4 py-2 text-center text-xs font-medium text-white sm:px-6">
+        Free shipping on orders over $75 &middot; Free returns within 30 days
+      </div>
+
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <Link
           to="/"
@@ -65,7 +69,7 @@ export function Header() {
           <button
             onClick={() => setSearchOpen((v) => !v)}
             aria-label="Search"
-            className="focus-ring flex h-11 w-11 items-center justify-center rounded-md text-ink hover:bg-black/5 lg:hidden"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-black/5 lg:hidden"
           >
             <Search className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -73,14 +77,14 @@ export function Header() {
           <Link
             to="/wishlist"
             aria-label="Wishlist"
-            className="focus-ring hidden h-11 w-11 items-center justify-center rounded-md text-ink hover:bg-black/5 md:flex"
+            className="focus-ring hidden h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-black/5 md:flex"
           >
             <Heart className="h-5 w-5" aria-hidden="true" />
           </Link>
           <Link
             to="/cart"
             aria-label={`Cart, ${itemCount} item${itemCount === 1 ? "" : "s"}`}
-            className="focus-ring relative flex h-11 w-11 items-center justify-center rounded-md text-ink hover:bg-black/5"
+            className="focus-ring relative flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-black/5"
           >
             <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             {itemCount > 0 && (
@@ -109,7 +113,7 @@ export function Header() {
           <button
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
-            className="focus-ring flex h-11 w-11 items-center justify-center rounded-md text-ink hover:bg-black/5 md:hidden"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-black/5 md:hidden"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
