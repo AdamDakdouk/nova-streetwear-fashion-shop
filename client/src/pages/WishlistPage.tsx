@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Trash2 } from "lucide-react";
+import { ArrowLeft, Heart, Trash2 } from "lucide-react";
 import { useAddToCart } from "../hooks/useCart";
 import { useRemoveFromWishlist, useWishlist } from "../hooks/useWishlist";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -76,11 +76,21 @@ export function WishlistPage() {
 
   if (isLoading) return <PageSpinner />;
 
+  const hasItems = Boolean(products && products.length > 0);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {hasItems && (
+        <Link
+          to="/"
+          className="focus-ring mb-4 inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-muted hover:text-ink"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to Products
+        </Link>
+      )}
       <h1 className="font-heading text-2xl font-bold text-ink">Your Wishlist</h1>
 
-      {!products || products.length === 0 ? (
+      {!hasItems ? (
         <div className="mt-8">
           <EmptyState
             icon={Heart}
@@ -95,7 +105,7 @@ export function WishlistPage() {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((product) => (
+          {products!.map((product) => (
             <WishlistCard key={product._id} product={product} />
           ))}
         </div>

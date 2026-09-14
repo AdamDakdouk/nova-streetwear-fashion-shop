@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { CartLineItem } from "../components/cart/CartLineItem";
 import { CartSummary } from "../components/cart/CartSummary";
@@ -17,6 +17,14 @@ export function CartPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {items.length > 0 && (
+        <Link
+          to="/"
+          className="focus-ring mb-4 inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-muted hover:text-ink"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to Products
+        </Link>
+      )}
       <h1 className="font-heading text-2xl font-bold text-ink">Your Cart</h1>
 
       {items.length === 0 ? (

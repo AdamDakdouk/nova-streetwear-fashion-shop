@@ -67,6 +67,17 @@ function sameSelection(a: Record<string, string>, b: Record<string, string>): bo
   return aKeys.every((key) => a[key] === b[key]);
 }
 
+/** Prefers the selected Color option's own photo (e.g. the blue t-shirt for a
+ * Blue/M line) over the product's default thumbnail, when one exists. */
+export function resolveLineThumbnail(
+  product: Pick<IProduct, "variants" | "thumbnail">,
+  selection: Record<string, string>
+): string {
+  const colorAxis = product.variants.find((axis) => axis.name === "Color");
+  const selectedOption = colorAxis?.options.find((o) => o.value === selection.Color);
+  return selectedOption?.images?.[0] ?? product.thumbnail;
+}
+
 export async function buildCartView(user: IUser): Promise<CartView> {
   const items: CartLineView[] = [];
   let total = 0;
@@ -85,7 +96,7 @@ export async function buildCartView(user: IUser): Promise<CartView> {
         _id: String(product._id),
         slug: product.slug,
         title: product.title,
-        thumbnail: product.thumbnail,
+        thumbnail: resolveLineThumbnail(product, line.variantSelection),
       },
       variantSelection: line.variantSelection,
       quantity: line.quantity,
