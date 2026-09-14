@@ -13,6 +13,8 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+const MAX_VISIBLE_TOASTS = 2;
+
 let nextId = 1;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -20,7 +22,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback((text: string, tone: "success" | "error" = "success") => {
     const id = nextId++;
-    setToasts((prev) => [...prev, { id, text, tone }]);
+    // Cap how many can pile up at once — rapid-fire actions (spam-clicking a
+    // toggle, etc.) must not leave a growing stack of stale messages on screen.
+    setToasts((prev) => [...prev.slice(-(MAX_VISIBLE_TOASTS - 1)), { id, text, tone }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
