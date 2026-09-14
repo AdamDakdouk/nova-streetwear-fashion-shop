@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { app } from "../../src/app";
 import { Product } from "../../src/models/Product";
+import { sendOtpEmail } from "../../src/services/email.service";
+
+const sendOtpEmailMock = sendOtpEmail as jest.Mock;
 
 let mongo: MongoMemoryServer;
 
@@ -24,10 +27,16 @@ afterEach(async () => {
 });
 
 async function registerAndLogin() {
-  const res = await request(app)
+  await request(app)
     .post("/api/auth/register")
     .send({ name: "Cart Tester", email: "cart@example.com", password: "supersecret" });
-  return res.body.token as string;
+
+  const [, code] = sendOtpEmailMock.mock.calls[sendOtpEmailMock.mock.calls.length - 1];
+  const verifyRes = await request(app)
+    .post("/api/auth/verify-email")
+    .send({ email: "cart@example.com", code });
+
+  return verifyRes.body.token as string;
 }
 
 async function makeProduct() {

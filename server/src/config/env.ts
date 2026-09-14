@@ -16,4 +16,6 @@ export const env = {
   jwtSecret: required("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "2h",
   clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5173",
+  resendApiKey: required("RESEND_API_KEY"),
+  emailFrom: process.env.EMAIL_FROM ?? "NOVA <onboarding@resend.dev>",
 };

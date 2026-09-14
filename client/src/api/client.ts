@@ -39,6 +39,8 @@ interface ApiErrorPayload {
   details?: {
     fieldErrors?: Record<string, string[] | undefined>;
     formErrors?: string[];
+    code?: string;
+    retryAfterMs?: number;
   };
 }
 
@@ -60,4 +62,16 @@ export function extractFieldErrors(error: unknown): Record<string, string> {
     if (messages && messages.length > 0) result[field] = messages[0];
   }
   return result;
+}
+
+/** Reads the machine-readable `details.code` some ApiErrors carry (e.g. EMAIL_NOT_VERIFIED). */
+export function extractErrorCode(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error)) return undefined;
+  return (error.response?.data as ApiErrorPayload | undefined)?.details?.code;
+}
+
+/** For a 429 "please wait" response, how many ms until the next resend is allowed. */
+export function extractRetryAfterMs(error: unknown): number | undefined {
+  if (!axios.isAxiosError(error)) return undefined;
+  return (error.response?.data as ApiErrorPayload | undefined)?.details?.retryAfterMs;
 }

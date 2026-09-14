@@ -1,14 +1,14 @@
 import { FormEvent, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/Button";
-import { extractErrorMessage, extractFieldErrors } from "../api/client";
+import { extractErrorCode, extractErrorMessage, extractFieldErrors } from "../api/client";
 import { useToast } from "../components/ui/Toast";
 
 type Mode = "login" | "register";
 
 export function LoginPage() {
-  const { isAuthenticated, login, register, isLoggingIn, isRegistering } = useAuth();
+  const { isAuthenticated, login, register, isLoggingIn, isRegistering, resendOtp, isResendingOtp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { showToast } = useToast();
@@ -20,6 +20,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   if (isAuthenticated) {
     const redirectTo = (location.state as { from?: Location })?.from?.pathname ?? "/";
@@ -27,6 +28,7 @@ export function LoginPage() {
   }
 
   const isPending = isLoggingIn || isRegistering;
+  const from = (location.state as { from?: Location } | null)?.from;
 
   function switchMode() {
     setMode(mode === "login" ? "register" : "login");
@@ -35,29 +37,43 @@ export function LoginPage() {
     setPassword("");
     setError(null);
     setFieldErrors({});
+    setNeedsVerification(false);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
+    setNeedsVerification(false);
     try {
       if (mode === "login") {
         await login({ email, password });
         showToast("Signed in successfully");
+        navigate(from?.pathname ?? "/", { replace: true });
       } else {
         await register({ name, email, password });
-        showToast("Account created successfully");
+        navigate("/verify-email", { state: { email, from } });
       }
-      const redirectTo = (location.state as { from?: Location })?.from?.pathname ?? "/";
-      navigate(redirectTo, { replace: true });
     } catch (err) {
+      if (mode === "login" && extractErrorCode(err) === "EMAIL_NOT_VERIFIED") {
+        setNeedsVerification(true);
+        return;
+      }
       const perField = extractFieldErrors(err);
       if (Object.keys(perField).length > 0) {
         setFieldErrors(perField);
       } else {
         setError(extractErrorMessage(err, "Unable to sign in. Please try again."));
       }
+    }
+  }
+
+  async function handleResendVerification() {
+    try {
+      await resendOtp({ email, purpose: "verify-email" });
+      navigate("/verify-email", { state: { email, from } });
+    } catch (err) {
+      setError(extractErrorMessage(err, "Could not resend the code."));
     }
   }
 
@@ -116,9 +132,16 @@ export function LoginPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-ink">
-            Password
-          </label>
+          <div className="mb-1 flex items-center justify-between">
+            <label htmlFor="password" className="block text-sm font-medium text-ink">
+              Password
+            </label>
+            {mode === "login" && (
+              <Link to="/forgot-password" className="focus-ring rounded-md text-xs text-accent hover:text-accent-hover">
+                Forgot password?
+              </Link>
+            )}
+          </div>
           <input
             id="password"
             type="password"
@@ -135,6 +158,20 @@ export function LoginPage() {
             </p>
           )}
         </div>
+
+        {needsVerification && (
+          <div className="rounded-md border border-accent/30 bg-accent-light/40 px-4 py-3 text-sm text-ink">
+            Please verify your email before signing in.{" "}
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={isResendingOtp}
+              className="focus-ring font-medium text-accent underline underline-offset-2 hover:text-accent-hover disabled:opacity-50"
+            >
+              Resend verification code
+            </button>
+          </div>
+        )}
 
         {error && (
           <p role="alert" className="text-sm text-danger">
