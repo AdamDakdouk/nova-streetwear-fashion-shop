@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useProduct } from "../hooks/useProducts";
 import { useAddToCart } from "../hooks/useCart";
-import { useAddToWishlist } from "../hooks/useWishlist";
+import { useAddToWishlist, useRemoveFromWishlist, useWishlist } from "../hooks/useWishlist";
 import { VariantSelector } from "../components/product/VariantSelector";
 import { QuantityStepper } from "../components/ui/QuantityStepper";
 import { Button } from "../components/ui/Button";
-import { PageSpinner } from "../components/ui/Spinner";
+import { PageSpinner, Spinner } from "../components/ui/Spinner";
 import { formatCurrency } from "../lib/formatCurrency";
 import { isSelectionComplete, resolveAvailableStock } from "../lib/stock";
 import { findAxis } from "../lib/variantDisplay";
@@ -36,7 +36,10 @@ export function ProductDetailPage() {
   const openAuthRequiredDialog = useAuthRequiredDialogStore((s) => s.open);
   const addToCart = useAddToCart();
   const addToWishlist = useAddToWishlist();
+  const removeFromWishlist = useRemoveFromWishlist();
+  const { data: wishlist } = useWishlist();
   const { showToast } = useToast();
+  const wishlistMutationInFlight = useRef(false);
 
   const [selection, setSelection] = useState<VariantSelection>({});
   const [activeImage, setActiveImage] = useState(0);
@@ -74,6 +77,8 @@ export function ProductDetailPage() {
     );
   }
 
+  const isInWishlist = wishlist?.some((p) => p._id === product._id) ?? false;
+
   function requireAuthThen(action: () => void) {
     if (!isAuthenticated) {
       openAuthRequiredDialog();
@@ -106,13 +111,26 @@ export function ProductDetailPage() {
     });
   }
 
-  function handleAddToWishlist() {
+  function handleToggleWishlist() {
+    // Guards the actual mutation, not just the button's disabled look — closes the
+    // window where a fast double-click fires twice before React re-renders the
+    // disabled state, which used to send alternating add/remove requests.
+    if (wishlistMutationInFlight.current) return;
+
     requireAuthThen(async () => {
+      wishlistMutationInFlight.current = true;
       try {
-        await addToWishlist.mutateAsync(product!._id);
-        showToast(`Added ${product!.title} to your wishlist`);
+        if (isInWishlist) {
+          await removeFromWishlist.mutateAsync(product!._id);
+          showToast(`Removed ${product!.title} from your wishlist`);
+        } else {
+          await addToWishlist.mutateAsync(product!._id);
+          showToast(`Added ${product!.title} to your wishlist`);
+        }
       } catch (err) {
-        showToast(extractErrorMessage(err, "Could not add to wishlist"), "error");
+        showToast(extractErrorMessage(err, "Could not update your wishlist"), "error");
+      } finally {
+        wishlistMutationInFlight.current = false;
       }
     });
   }
@@ -160,7 +178,7 @@ export function ProductDetailPage() {
             )}
           </div>
           {gallery.length > 1 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto">
+            <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
               {gallery.map((src, i) => (
                 <button
                   key={src}
@@ -217,14 +235,23 @@ export function ProductDetailPage() {
             >
               {availableStock === 0 ? "Out of stock" : "Add to Cart"}
             </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              isLoading={addToWishlist.isPending}
-              onClick={handleAddToWishlist}
+            <button
+              type="button"
+              onClick={handleToggleWishlist}
+              disabled={addToWishlist.isPending || removeFromWishlist.isPending}
+              className={`focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-md border px-6 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                isInWishlist
+                  ? "border-accent bg-accent-light text-accent"
+                  : "border-border bg-transparent text-ink hover:bg-black/5"
+              }`}
             >
-              <Heart className="h-4 w-4" aria-hidden="true" /> Add to Wishlist
-            </Button>
+              {addToWishlist.isPending || removeFromWishlist.isPending ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                <Heart className="h-4 w-4" aria-hidden="true" fill={isInWishlist ? "currentColor" : "none"} />
+              )}
+              {isInWishlist ? "Added to Wishlist" : "Add to Wishlist"}
+            </button>
           </div>
 
           {!selectionComplete && product.variants.length > 0 && (
