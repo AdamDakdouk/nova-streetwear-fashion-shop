@@ -1,4 +1,4 @@
-# NOMAD — Streetwear E-Commerce Platform
+# NOVA — Streetwear E-Commerce Platform
 
 A mini e-commerce platform built for the Full Stack Engineer take-home assessment: browse a 15-product streetwear catalog with color/size variants, manage a cart and wishlist, and complete a mocked checkout — end to end, fully responsive.
 
