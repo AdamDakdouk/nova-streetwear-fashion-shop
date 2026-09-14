@@ -24,6 +24,19 @@
 - One accent color (`#C2410C`, a muted rust/terracotta) used consistently for primary actions and active/selected states, chosen to read as a considered streetwear-boutique palette rather than a loud or generic one.
 - Accessibility basics applied throughout rather than bolted on after: visible focus rings (`.focus-ring` utility) on every interactive element, ≥44px touch targets on buttons/steppers/variant pills, `aria-live` regions for stock text and toasts, labeled form fields (not placeholder-only).
 
+## Auth flow (email verification / password reset)
+
+- Added after the base spec, at the user's request. Modeled as its own small set of routes (`/verify-email`, `/forgot-password`, `/reset-password`) rather than cramming more mode-switches into `LoginPage`, since each step has a genuinely different job (enter credentials vs. enter a code vs. set a new password) and needs its own back/forward-navigable URL.
+- `useResendCooldown` is a tiny reusable hook (wall-clock end-time, not a naive `setInterval` counter) shared by the verify-email and reset-password screens so the 60s "resend code" cooldown stays accurate even if the tab is backgrounded and throttled.
+- The register mutation intentionally does **not** call `setAuth` on success anymore (see `useAuth.ts`) — the account isn't usable yet, so nothing should look logged in until `/auth/verify-email` actually returns a token.
+
+## Admin dashboard
+
+- Added after the base spec, at the user's request. Lives entirely outside `AppLayout` — its own route subtree in `router.tsx` (`/admin/login`, `/admin`, `/admin/products/new`, `/admin/products/:id/edit`) with no shared header/footer/toast-dialog chrome from the storefront, and no link to it anywhere in the public UI (`Header`, `MobileNav`, `Footer`). Reachable only by knowing the URL, and gated twice over: `AdminRoute` checks `role === "admin"` client-side (UX — redirect before rendering anything), the backend's `requireAdmin` is the actual security boundary.
+- Reuses the same `authStore`/JWT as the storefront rather than a parallel session system — an admin logging in via `/admin/login` is just hitting the same `/auth/login` endpoint; the page checks the returned role and immediately logs back out (clears the token) if it isn't `"admin"`, rather than silently landing them on the customer storefront logged in as themselves.
+- The variant editor (`VariantAxisEditor`) mirrors the exact nested shape the backend expects (`variants: [{ name, options: [{ value, stock, images? }] }]`) directly in component state — no intermediate form-library schema — since the shape is small and the whole point is that what's submitted is what's stored, one-to-one.
+- Image uploads happen immediately on file selection (not deferred to form submit) — each file is POSTed to `/api/admin/upload` as soon as it's picked, and the returned URL is what gets stored in form state. Keeps the "did this upload actually succeed" question answered before the admin ever hits Save, instead of surfacing an upload failure buried inside a larger product-save error.
+
 ## Responsive approach
 
 - Mobile-first Tailwind breakpoints (`sm/md/lg/xl`), a product grid that goes 1 → 2 → 3 → 4 columns, a slide-in `MobileNav` below `md` instead of trying to cram the desktop nav into a small viewport, and a cart summary that sits inline on mobile vs. a sticky side column on `lg+`.

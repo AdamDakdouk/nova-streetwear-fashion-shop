@@ -20,7 +20,8 @@ npm install
 
 # 2. Configure the backend
 cp server/.env.example server/.env
-# edit server/.env and set a real JWT_SECRET
+# edit server/.env: set a real JWT_SECRET, and a RESEND_API_KEY (resend.com) for
+# OTP emails (registration/password-reset send real email — see note below)
 
 # 3. Seed the database (creates the 15 products + copies product images into
 #    client/public/products/, and creates a demo user)
@@ -34,6 +35,10 @@ npm run dev
 - Frontend: http://localhost:5173
 
 **Demo login:** `demo@example.com` / `Passw0rd!` (also shown on the login screen)
+
+**Admin dashboard:** `/admin/login` — `admin@nova.com` / `AdminPass123!` (not linked from the storefront UI; add/edit/delete products, including image upload). See `NOTES_BACKEND.md` / `NOTES_FRONTEND.md` for how the role gating works.
+
+**Email/OTP:** registration, email verification, and password reset send real email via [Resend](https://resend.com). Without a verified domain on that account, Resend's sandbox sender can only deliver to the email address the Resend account itself was signed up with — testing with any other address will bounce. `RESEND_API_KEY` is required at boot (the server won't start without it).
 
 ## Scripts
 
