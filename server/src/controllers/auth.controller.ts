@@ -143,7 +143,16 @@ export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
   const code = generateOtpCode();
   user.otp = await buildOtp(purpose, code);
   await user.save();
-  await sendOtpEmail(user.email, code, purpose);
+
+  try {
+    await sendOtpEmail(user.email, code, purpose);
+  } catch (err) {
+    // Swallow the send failure behind the same generic response used for a
+    // nonexistent account — surfacing it as an error would let an attacker
+    // tell "account exists but the provider hiccuped" apart from "no such
+    // account", exactly the enumeration this endpoint's wording is meant to hide.
+    console.error("[resendOtp] failed to send email", err);
+  }
 
   res.status(200).json(genericResponse);
 });
@@ -172,7 +181,14 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   const code = generateOtpCode();
   user.otp = await buildOtp("reset-password", code);
   await user.save();
-  await sendOtpEmail(user.email, code, "reset-password");
+
+  try {
+    await sendOtpEmail(user.email, code, "reset-password");
+  } catch (err) {
+    // Same reasoning as resendOtp: never let a send failure be distinguishable
+    // from "no such account" — both must look identical to the caller.
+    console.error("[forgotPassword] failed to send email", err);
+  }
 
   res.status(200).json(genericResponse);
 });

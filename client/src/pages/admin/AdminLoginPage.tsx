@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAuthStore } from "../../store/authStore";
@@ -64,9 +64,14 @@ export function AdminLoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-white/80">
-              Password
-            </label>
+            <div className="mb-1 flex items-center justify-between">
+              <label htmlFor="password" className="block text-sm font-medium text-white/80">
+                Password
+              </label>
+              <Link to="/forgot-password?from=admin" className="text-xs text-white/60 hover:text-white">
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"

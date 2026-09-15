@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useResendCooldown } from "../hooks/useResendCooldown";
@@ -15,6 +15,8 @@ interface LocationState {
 export function ResetPasswordPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = searchParams.get("from") === "admin";
   const { resetPassword, isResettingPassword, resendOtp, isResendingOtp } = useAuth();
   const { showToast } = useToast();
   const cooldown = useResendCooldown();
@@ -33,7 +35,7 @@ export function ResetPasswordPage() {
   }, []);
 
   if (!email) {
-    return <Navigate to="/forgot-password" replace />;
+    return <Navigate to={`/forgot-password${isAdmin ? "?from=admin" : ""}`} replace />;
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -49,7 +51,7 @@ export function ResetPasswordPage() {
     try {
       await resetPassword({ email: email!, code, newPassword });
       showToast("Password reset — please sign in.");
-      navigate("/login", { replace: true });
+      navigate(isAdmin ? "/admin/login" : "/login", { replace: true });
     } catch (err) {
       const perField = extractFieldErrors(err);
       if (Object.keys(perField).length > 0) {

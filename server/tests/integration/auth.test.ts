@@ -147,5 +147,29 @@ describe("auth", () => {
       expect(res.status).toBe(200);
       expect(sendOtpEmailMock).not.toHaveBeenCalled();
     });
+
+    it("still returns the generic success response when the email provider fails (existing account)", async () => {
+      await verifiedUser();
+      sendOtpEmailMock.mockRejectedValueOnce(new Error("provider outage"));
+
+      const res = await request(app).post("/api/auth/forgot-password").send({ email: payload.email });
+
+      // Must be byte-for-byte indistinguishable from the "no such account" response
+      // above — a send failure is exactly the case this endpoint must not leak.
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe("If an account with that email exists, we've sent a password reset code.");
+    });
+
+    it("resend-otp also returns the generic response when the email provider fails", async () => {
+      await verifiedUser();
+      sendOtpEmailMock.mockRejectedValueOnce(new Error("provider outage"));
+
+      const res = await request(app)
+        .post("/api/auth/resend-otp")
+        .send({ email: payload.email, purpose: "reset-password" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe("If that account needs a code, a new one was just sent.");
+    });
   });
 });

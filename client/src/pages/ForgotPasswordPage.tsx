@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,8 @@ import { extractErrorMessage } from "../api/client";
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = searchParams.get("from") === "admin";
   const { forgotPassword, isSendingForgotPassword } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -17,7 +19,7 @@ export function ForgotPasswordPage() {
     setError(null);
     try {
       await forgotPassword(email);
-      navigate("/reset-password", { state: { email } });
+      navigate(`/reset-password${isAdmin ? "?from=admin" : ""}`, { state: { email } });
     } catch (err) {
       setError(extractErrorMessage(err, "Something went wrong. Please try again."));
     }
@@ -60,7 +62,10 @@ export function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <Link to="/login" className="focus-ring mt-4 self-center rounded-md text-sm text-muted hover:text-ink">
+      <Link
+        to={isAdmin ? "/admin/login" : "/login"}
+        className="focus-ring mt-4 self-center rounded-md text-sm text-muted hover:text-ink"
+      >
         Back to sign in
       </Link>
     </div>
