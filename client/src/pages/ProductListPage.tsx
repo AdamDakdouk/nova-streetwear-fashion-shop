@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
 import { useHero } from "../hooks/useHero";
@@ -6,6 +6,9 @@ import { ProductGrid } from "../components/product/ProductGrid";
 import { HeroBanner } from "../components/product/HeroBanner";
 import { CategoryNav } from "../components/layout/CategoryNav";
 import { bucketMatches, CATEGORY_BUCKETS } from "../lib/categories";
+
+/** Breathing room above the product grid when a filter scrolls it into view. */
+const GRID_SCROLL_OFFSET = 24;
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "name-asc";
 
@@ -26,6 +29,29 @@ export function ProductListPage() {
   const query = searchParams.get("q")?.trim().toLowerCase() ?? "";
   const category = searchParams.get("category");
   const isDefaultView = !query && !category;
+
+  // Changing a filter should leave you looking at the products. Scroll position
+  // resets on every filter click, but only the unfiltered view renders the hero
+  // above the grid — so without this, clearing a filter drops the products below
+  // the fold while every other filter leaves them at the top.
+  // Compares the filter itself rather than tracking "is this the first render":
+  // a first-render flag isn't idempotent, so StrictMode's double-invoked effect
+  // would consume it on the first pass and scroll on the second, dragging the
+  // homepage past its own hero on load.
+  const lastFilter = useRef(`${category ?? ""}:${query}`);
+  useLayoutEffect(() => {
+    const current = `${category ?? ""}:${query}`;
+    if (lastFilter.current === current) return;
+    lastFilter.current = current;
+
+    const grid = gridRef.current;
+    if (!grid) return;
+    // Runs as a layout effect against an explicit target rather than
+    // scrollIntoView in a passive effect: toggling the hero changes the page
+    // height above the grid, and the browser's scroll anchoring would otherwise
+    // adjust the scroll position again after a passive effect had already moved it.
+    window.scrollTo({ top: grid.offsetTop - GRID_SCROLL_OFFSET });
+  }, [category, query]);
 
   const filtered = useMemo(() => {
     if (!products) return products;
