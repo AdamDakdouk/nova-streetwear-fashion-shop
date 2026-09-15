@@ -4,6 +4,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { app } from "../../src/app";
 import { User } from "../../src/models/User";
 import { Product } from "../../src/models/Product";
+import { SiteContent } from "../../src/models/SiteContent";
 import { sendOtpEmail } from "../../src/services/email.service";
 import { uploadImageBuffer } from "../../src/services/storage.service";
 
@@ -143,6 +144,100 @@ describe("admin product management", () => {
       .set("Authorization", `Bearer ${token}`);
     expect(wishlistRes.status).toBe(200);
     expect(wishlistRes.body).toEqual([]);
+  });
+
+  describe("homepage hero", () => {
+    const validHero = {
+      eyebrow: "New Season",
+      heading: "Layer up for\ncooler days",
+      subcopy: "Jackets and hoodies built for the street.",
+      ctaLabel: "Shop New Arrivals",
+      images: ["/products/test-jacket/a.jpg"],
+    };
+
+    it("serves the shipped defaults publicly when nothing has been saved yet", async () => {
+      const res = await request(app).get("/api/site-content/hero");
+      expect(res.status).toBe(200);
+      expect(res.body.eyebrow).toBe("New Season");
+      expect(res.body.images).toHaveLength(1);
+    });
+
+    it("rejects a non-admin trying to edit it with 403", async () => {
+      const token = await makeVerifiedUser("hero1@example.com", "user");
+      const res = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send(validHero);
+      expect(res.status).toBe(403);
+    });
+
+    it("lets an admin save it, and serves the saved copy publicly", async () => {
+      const token = await makeVerifiedUser("hero2@example.com", "admin");
+
+      const saveRes = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, ctaLabel: "Browse the drop" });
+      expect(saveRes.status).toBe(200);
+      expect(saveRes.body.ctaLabel).toBe("Browse the drop");
+
+      const publicRes = await request(app).get("/api/site-content/hero");
+      expect(publicRes.body.ctaLabel).toBe("Browse the drop");
+    });
+
+    it("overwrites the single hero document rather than creating a second one", async () => {
+      const token = await makeVerifiedUser("hero3@example.com", "admin");
+
+      await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send(validHero);
+      await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, eyebrow: "Final Sale" });
+
+      const all = await SiteContent.find({});
+      expect(all).toHaveLength(1);
+      expect(all[0].eyebrow).toBe("Final Sale");
+    });
+
+    it("rejects blank required fields with per-field errors", async () => {
+      const token = await makeVerifiedUser("hero4@example.com", "admin");
+      const res = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, heading: "   ", ctaLabel: "" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.details?.fieldErrors?.heading).toBeDefined();
+      expect(res.body.details?.fieldErrors?.ctaLabel).toBeDefined();
+    });
+
+    it("requires at least one image and allows no more than four", async () => {
+      const token = await makeVerifiedUser("hero5@example.com", "admin");
+
+      const noneRes = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, images: [] });
+      expect(noneRes.status).toBe(400);
+      expect(noneRes.body.details?.fieldErrors?.images).toBeDefined();
+
+      const tooManyRes = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, images: ["a.jpg", "b.jpg", "c.jpg", "d.jpg", "e.jpg"] });
+      expect(tooManyRes.status).toBe(400);
+      expect(tooManyRes.body.details?.fieldErrors?.images).toBeDefined();
+
+      const fourRes = await request(app)
+        .put("/api/admin/site-content/hero")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...validHero, images: ["a.jpg", "b.jpg", "c.jpg", "d.jpg"] });
+      expect(fourRes.status).toBe(200);
+      expect(fourRes.body.images).toHaveLength(4);
+    });
   });
 
   describe("image upload", () => {

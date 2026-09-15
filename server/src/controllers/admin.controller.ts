@@ -2,8 +2,10 @@ import { Request, Response } from "express";
 import { Product } from "../models/Product";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../middleware/asyncHandler";
-import { ProductInput } from "../validators/admin.validators";
+import { HeroInput, ProductInput } from "../validators/admin.validators";
 import { uploadImageBuffer } from "../services/storage.service";
+import { SiteContent, HERO_KEY } from "../models/SiteContent";
+import { DEFAULT_HERO } from "../seed/hero.data";
 
 export const listProducts = asyncHandler(async (_req: Request, res: Response) => {
   const products = await Product.find().sort({ title: 1 });
@@ -36,6 +38,24 @@ export const deleteProduct = asyncHandler(async (req: Request, res: Response) =>
   const product = await Product.findByIdAndDelete(req.params.id);
   if (!product) throw new ApiError(404, "Product not found");
   res.status(200).json({ message: "Product deleted" });
+});
+
+export const getHero = asyncHandler(async (_req: Request, res: Response) => {
+  const hero = await SiteContent.findOne({ key: HERO_KEY });
+  res.status(200).json(hero ?? { key: HERO_KEY, ...DEFAULT_HERO });
+});
+
+export const updateHero = asyncHandler(async (req: Request, res: Response) => {
+  const input = req.body as HeroInput;
+  // Upsert rather than update: there is only ever one hero, and creating it on
+  // first save keeps the endpoint working against a database that was never seeded.
+  const hero = await SiteContent.findOneAndUpdate({ key: HERO_KEY }, input, {
+    new: true,
+    upsert: true,
+    runValidators: true,
+    setDefaultsOnInsert: true,
+  });
+  res.status(200).json(hero);
 });
 
 export const uploadProductImage = asyncHandler(async (req: Request, res: Response) => {

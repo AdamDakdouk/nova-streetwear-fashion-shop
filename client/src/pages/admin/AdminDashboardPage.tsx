@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, LogOut, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
+  LayoutTemplate,
+  LogOut,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useAdminProducts, useDeleteAdminProduct } from "../../hooks/useAdminProducts";
 import { useAuthStore } from "../../store/authStore";
 import { useLogoutDialogStore } from "../../store/logoutDialogStore";
@@ -229,11 +240,19 @@ export function AdminDashboardPage() {
               {visibleProducts.length} of {products?.length ?? 0}
             </p>
           </div>
-          <Link to="/admin/products/new">
-            <Button>
-              <Plus className="h-4 w-4" aria-hidden="true" /> Add Product
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin/hero"
+              className="focus-ring inline-flex h-11 items-center gap-1.5 rounded-md border border-border px-4 text-sm font-medium text-ink hover:bg-black/5"
+            >
+              <LayoutTemplate className="h-4 w-4" aria-hidden="true" /> Homepage Hero
+            </Link>
+            <Link to="/admin/products/new">
+              <Button>
+                <Plus className="h-4 w-4" aria-hidden="true" /> Add Product
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {isLoading ? (

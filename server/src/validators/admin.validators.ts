@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { HERO_MAX_IMAGES } from "../models/SiteContent";
 
 const variantOptionSchema = z.object({
   value: z.string().min(1, "Option value is required"),
@@ -27,3 +28,16 @@ export const productSchema = z.object({
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
+
+export const heroSchema = z.object({
+  eyebrow: z.string().trim().min(1, "Eyebrow text is required").max(40, "Keep the eyebrow under 40 characters"),
+  heading: z.string().trim().min(1, "Heading is required").max(120, "Keep the heading under 120 characters"),
+  subcopy: z.string().trim().min(1, "Supporting text is required").max(240, "Keep the supporting text under 240 characters"),
+  ctaLabel: z.string().trim().min(1, "Button label is required").max(40, "Keep the button label under 40 characters"),
+  images: z
+    .array(z.string().min(1))
+    .min(1, "Add at least one image")
+    .max(HERO_MAX_IMAGES, `The hero layout supports up to ${HERO_MAX_IMAGES} images`),
+});
+
+export type HeroInput = z.infer<typeof heroSchema>;

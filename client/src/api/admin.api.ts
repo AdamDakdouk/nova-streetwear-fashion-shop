@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type { AdminProduct } from "../types";
+import type { AdminProduct, HeroContent } from "../types";
 
 export type ProductFormPayload = Omit<AdminProduct, "_id">;
 
@@ -25,6 +25,16 @@ export async function updateAdminProduct(id: string, payload: ProductFormPayload
 
 export async function deleteAdminProduct(id: string): Promise<void> {
   await apiClient.delete(`/admin/products/${id}`);
+}
+
+export async function fetchAdminHero(): Promise<HeroContent> {
+  const { data } = await apiClient.get<HeroContent>("/admin/site-content/hero");
+  return data;
+}
+
+export async function updateAdminHero(payload: HeroContent): Promise<HeroContent> {
+  const { data } = await apiClient.put<HeroContent>("/admin/site-content/hero", payload);
+  return data;
 }
 
 export async function uploadAdminImage(file: File): Promise<string> {

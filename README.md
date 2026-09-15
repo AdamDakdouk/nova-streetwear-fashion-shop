@@ -26,7 +26,8 @@ cp server/.env.example server/.env
 # — see notes below, all of these are required at boot
 
 # 3. Seed the database (creates the 15 products + copies product images into
-#    client/public/products/, and creates a demo user)
+#    client/public/products/, creates a demo user, and inserts the default
+#    homepage hero — re-running never overwrites an edited hero)
 npm run seed
 
 # 4. Run both apps
@@ -38,7 +39,7 @@ npm run dev
 
 **Demo login:** `demo@example.com` / `Passw0rd!` (also shown on the login screen)
 
-**Admin dashboard:** `/admin/login` — `admin@nova.com` / `AdminPass123!` (not linked from the storefront UI; add/edit/delete products, including image upload). See `NOTES_BACKEND.md` / `NOTES_FRONTEND.md` for how the role gating works.
+**Admin dashboard:** `/admin/login` — `admin@nova.com` / `AdminPass123!` (not linked from the storefront UI; add/edit/delete products including image upload, and edit the homepage hero banner — copy, button label, and 1–4 images, with a live preview). See `NOTES_BACKEND.md` / `NOTES_FRONTEND.md` for how the role gating works.
 
 **Email/OTP:** registration, email verification, and password reset send real email via [Resend](https://resend.com). Without a verified domain on that account, Resend's sandbox sender can only deliver to the email address the Resend account itself was signed up with — testing with any other address will bounce. `RESEND_API_KEY` is required at boot (the server won't start without it).
 

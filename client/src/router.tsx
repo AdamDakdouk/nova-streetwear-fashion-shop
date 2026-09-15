@@ -16,6 +16,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminProductFormPage } from "./pages/admin/AdminProductFormPage";
+import { AdminHeroPage } from "./pages/admin/AdminHeroPage";
 
 export const router = createBrowserRouter([
   // Admin area intentionally lives outside AppLayout — no storefront header/nav/
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: "products/new", element: <AdminProductFormPage /> },
       { path: "products/:id/edit", element: <AdminProductFormPage /> },
+      { path: "hero", element: <AdminHeroPage /> },
     ],
   },
   {

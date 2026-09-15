@@ -5,6 +5,8 @@ import { connectDB } from "../config/db";
 import { Product } from "../models/Product";
 import { User } from "../models/User";
 import { products } from "./products.data";
+import { SiteContent, HERO_KEY } from "../models/SiteContent";
+import { DEFAULT_HERO } from "./hero.data";
 import mongoose from "mongoose";
 
 const MEDIA_DIR = path.resolve(__dirname, "../../../media");
@@ -111,6 +113,22 @@ async function seedAdminUser(): Promise<void> {
   console.log(`[seed] created admin user -> ${email} / AdminPass123!`);
 }
 
+async function seedHero(): Promise<void> {
+  // Insert-if-missing, never overwrite: re-running the seed shouldn't wipe out
+  // homepage copy an admin has since edited from the dashboard.
+  const result = await SiteContent.updateOne(
+    { key: HERO_KEY },
+    { $setOnInsert: { key: HERO_KEY, ...DEFAULT_HERO } },
+    { upsert: true }
+  );
+
+  if (result.upsertedCount > 0) {
+    console.log("[seed] created default homepage hero");
+  } else {
+    console.log("[seed] homepage hero already exists (left untouched)");
+  }
+}
+
 async function main() {
   console.log("[seed] copying product images...");
   copyProductImages();
@@ -119,6 +137,7 @@ async function main() {
   await connectDB();
 
   await seedProducts();
+  await seedHero();
   await seedDemoUser();
   await seedAdminUser();
 

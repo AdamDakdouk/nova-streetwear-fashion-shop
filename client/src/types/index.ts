@@ -46,6 +46,15 @@ export interface Product {
 /** Admin CRUD endpoints return the raw product document — no computed `totalStock`/rating. */
 export type AdminProduct = Omit<Product, "totalStock" | "avgRating" | "reviewCount">;
 
+/** Admin-editable homepage hero. `heading` may contain newlines — each is a rendered line break. */
+export interface HeroContent {
+  eyebrow: string;
+  heading: string;
+  subcopy: string;
+  ctaLabel: string;
+  images: string[];
+}
+
 export interface Review {
   _id: string;
   product: string;

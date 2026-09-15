@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useProducts } from "../hooks/useProducts";
+import { useHero } from "../hooks/useHero";
 import { ProductGrid } from "../components/product/ProductGrid";
 import { HeroBanner } from "../components/product/HeroBanner";
 import { CategoryNav } from "../components/layout/CategoryNav";
@@ -17,6 +18,7 @@ const SORT_LABELS: Record<SortOption, string> = {
 
 export function ProductListPage() {
   const { data: products, isLoading } = useProducts();
+  const { data: hero } = useHero();
   const [searchParams] = useSearchParams();
   const [sort, setSort] = useState<SortOption>("featured");
   const gridRef = useRef<HTMLDivElement>(null);
@@ -46,8 +48,11 @@ export function ProductListPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      {isDefaultView && (
-        <HeroBanner onShopClick={() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })} />
+      {isDefaultView && hero && (
+        <HeroBanner
+          hero={hero}
+          onShopClick={() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        />
       )}
 
       <div ref={gridRef} className="mb-6 flex scroll-mt-24 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
