@@ -1,8 +1,8 @@
 import { apiClient } from "./client";
-import type { Order } from "../types";
+import type { CheckoutPayload, Order } from "../types";
 
-export async function placeOrder(): Promise<Order> {
-  const { data } = await apiClient.post<{ order: Order }>("/orders");
+export async function placeOrder(payload: CheckoutPayload): Promise<Order> {
+  const { data } = await apiClient.post<{ order: Order }>("/orders", payload);
   return data.order;
 }
 

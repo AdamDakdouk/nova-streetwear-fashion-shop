@@ -63,6 +63,13 @@
 - `GET /api/orders` added for the account page's purchase history — scoped to `req.userId` and sorted newest first. The route sits above `GET /:id` in `order.routes.ts`; registered the other way round, Express would match the bare path against the `:id` param.
 - Ownership is enforced in the query itself (`Order.find({ user: req.userId })`) rather than by fetching and filtering afterwards, the same shape as the existing `getOrder`. `tests/integration/orders.test.ts` covers the leak case directly: a second account asking for orders gets an empty list, not someone else's purchases.
 
+## Checkout payload / card data
+
+- Checkout collects a delivery address and card details, and `POST /orders` now takes a validated body instead of an empty one. The address is stored on the order; the card is not.
+- **The card number, expiry and CVV never reach this server.** `checkoutSchema` accepts only `shippingAddress` and `payment: { brand, last4 }`, with `last4` pinned to exactly four digits. Because zod strips unknown keys, a client that sent a full PAN anyway would have it dropped at the boundary rather than landing in a request log, an error report, or the database — `tests/integration/orders.test.ts` asserts exactly that by posting a full number, a CVV and an expiry and then reading the stored document back to confirm none of it persisted.
+- This mirrors how a real storefront works: the payment provider's SDK takes the card directly from the browser and the merchant only ever sees a token plus the brand/last4 to display. Keeping the same boundary in a simulated checkout means the demo isn't teaching a shape that would be unsafe in production.
+- `placeOrder(user, details)` gained a second argument rather than reading the details off the user document, keeping the service's inputs explicit and its existing unit tests straightforward to extend.
+
 ## Checkout / concurrency
 
 - `placeOrder` re-validates every cart line's stock *before* mutating anything (see `order.service.ts`), so a stale cart (stock changed since the item was added) fails cleanly with a 409 and leaves the cart and product stock untouched — verified in `tests/unit/order.service.test.ts`.

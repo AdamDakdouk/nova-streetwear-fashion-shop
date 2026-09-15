@@ -1,5 +1,5 @@
 import { IUser } from "../models/User";
-import { IOrder, Order } from "../models/Order";
+import { IOrder, IPaymentSummary, IShippingAddress, Order } from "../models/Order";
 import { IProduct, Product } from "../models/Product";
 import { ApiError } from "../utils/ApiError";
 import { resolveAvailableStock } from "./cart.service";
@@ -22,7 +22,12 @@ function decrementStock(
   }
 }
 
-export async function placeOrder(user: IUser): Promise<IOrder> {
+export interface CheckoutDetails {
+  shippingAddress: IShippingAddress;
+  payment: IPaymentSummary;
+}
+
+export async function placeOrder(user: IUser, details: CheckoutDetails): Promise<IOrder> {
   if (user.cart.length === 0) {
     throw new ApiError(400, "Your cart is empty");
   }
@@ -68,7 +73,13 @@ export async function placeOrder(user: IUser): Promise<IOrder> {
     await productDoc.save();
   }
 
-  const order = await Order.create({ user: user._id, items, total });
+  const order = await Order.create({
+    user: user._id,
+    items,
+    total,
+    shippingAddress: details.shippingAddress,
+    payment: details.payment,
+  });
 
   user.cart.splice(0, user.cart.length);
   await user.save();

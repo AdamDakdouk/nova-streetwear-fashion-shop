@@ -60,6 +60,15 @@
 - Those documents are **mock content** and say so on the page, in a notice above the text. Fabricated terms presented as though they were real is the kind of thing that could actually mislead someone, so the disclaimer is part of the page rather than a code comment. The contact email uses the reserved `.example` TLD and the social links point at the platforms rather than at guessed handles, so nothing in the demo can reach a real inbox or a stranger's profile.
 - The legal pages scroll themselves to the top on mount: they're reached from the footer, so the click always happens at the bottom of a long page, and without it you land already scrolled past the title.
 
+## Checkout form
+
+- Checkout went from a one-button confirm to a real form: delivery address, card details, and an order summary that stays in view on a sticky column at `lg+`.
+- **Card details stay in component state and are discarded with the page.** Only the detected brand and the last four digits are put in the request — verified by intercepting the actual outgoing call and confirming the body contained neither the number nor the CVV. `lib/payment.ts` holds the brand detection, formatting (Amex is 4-6-5, everything else grouped in fours), and a Luhn checksum, so a mistyped number fails at the point of typing rather than sailing through as a "successful" payment.
+- The demo notice sits above the form rather than in small print: it says plainly that no payment is taken, that the card never leaves the browser, and gives a test number to use. Somebody typing a real card into a page that looks like a checkout is a genuine risk, and a code comment doesn't reach them.
+- The simulated authorisation is a short awaited delay with the button reading "Processing payment…", so the payment step is a visible state rather than an instant jump.
+- **Bug caught while verifying**: clearing the cart cache on success re-rendered the page, the empty-cart guard fired, and the shopper was bounced to `/cart` instead of the confirmation for the order they had just paid for. The order itself saved correctly, which is what made it easy to miss — the redirect looked like a cancelled checkout. Fixed with a `hasPlacedOrder` flag that suppresses the guard once the mutation succeeds.
+- The confirmation and account pages both guard on `order.shippingAddress` / `order.payment` being present, since orders placed before checkout collected them have neither and would otherwise crash the page.
+
 ## Product reviews
 
 - `ReviewSection` finds "my review" by comparing `review.user` against the signed-in user's id from `authStore` inside the fetched review list — no separate "get my review" endpoint. Simpler request surface for a per-product review count that's realistically always small.

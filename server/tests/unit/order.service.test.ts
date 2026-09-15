@@ -47,16 +47,28 @@ async function makeUserWithCart(quantity: number) {
   return { user, product };
 }
 
+const CHECKOUT_DETAILS = {
+  shippingAddress: {
+    fullName: "Test Shopper",
+    phone: "+961 70 000 000",
+    line1: "12 Test Street",
+    city: "Beirut",
+    postalCode: "1100",
+    country: "Lebanon",
+  },
+  payment: { brand: "Visa", last4: "4242" },
+};
+
 describe("placeOrder", () => {
   it("throws when the cart is empty", async () => {
     const user = await User.create({ name: "Empty", email: "empty@example.com", passwordHash: "h" });
-    await expect(placeOrder(user)).rejects.toBeInstanceOf(ApiError);
+    await expect(placeOrder(user, CHECKOUT_DETAILS)).rejects.toBeInstanceOf(ApiError);
   });
 
   it("creates an order, decrements stock, and clears the cart on success", async () => {
     const { user, product } = await makeUserWithCart(2);
 
-    const order = await placeOrder(user);
+    const order = await placeOrder(user, CHECKOUT_DETAILS);
 
     expect(order.total).toBe(3000);
     expect(order.items).toHaveLength(1);
@@ -71,7 +83,7 @@ describe("placeOrder", () => {
   it("rejects when quantity exceeds stock, without mutating cart or stock", async () => {
     const { user, product } = await makeUserWithCart(10);
 
-    await expect(placeOrder(user)).rejects.toMatchObject({ statusCode: 409 });
+    await expect(placeOrder(user, CHECKOUT_DETAILS)).rejects.toMatchObject({ statusCode: 409 });
 
     const refreshedUser = await User.findById(user._id);
     expect(refreshedUser!.cart).toHaveLength(1);

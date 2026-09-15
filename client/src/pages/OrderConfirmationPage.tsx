@@ -62,6 +62,44 @@ export function OrderConfirmationPage() {
         </div>
       </div>
 
+      {/* Orders placed before checkout collected these details have neither. */}
+      {(order.shippingAddress || order.payment) && (
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {order.shippingAddress && (
+            <div className="rounded-lg border border-border bg-surface p-4">
+              <h2 className="font-heading text-sm font-semibold text-ink">Delivering to</h2>
+              <address className="mt-2 text-sm not-italic leading-relaxed text-muted">
+                {order.shippingAddress.fullName}
+                <br />
+                {order.shippingAddress.line1}
+                {order.shippingAddress.line2 && (
+                  <>
+                    <br />
+                    {order.shippingAddress.line2}
+                  </>
+                )}
+                <br />
+                {order.shippingAddress.city} {order.shippingAddress.postalCode}
+                <br />
+                {order.shippingAddress.country}
+                <br />
+                {order.shippingAddress.phone}
+              </address>
+            </div>
+          )}
+
+          {order.payment && (
+            <div className="rounded-lg border border-border bg-surface p-4">
+              <h2 className="font-heading text-sm font-semibold text-ink">Paid with</h2>
+              <p className="mt-2 text-sm text-muted">
+                {order.payment.brand} ending in {order.payment.last4}
+              </p>
+              <p className="mt-2 text-xs text-muted">Simulated payment — no card was charged.</p>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="mt-8 flex justify-center">
         <Link to="/">
           <Button size="lg">Continue Shopping</Button>

@@ -97,11 +97,34 @@ export interface OrderItem {
   subtotal: number;
 }
 
+export interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+/** Only ever the brand and last four digits — the raw card never leaves the browser. */
+export interface PaymentSummary {
+  brand: string;
+  last4: string;
+}
+
+export interface CheckoutPayload {
+  shippingAddress: ShippingAddress;
+  payment: PaymentSummary;
+}
+
 export interface Order {
   _id: string;
   user: string;
   items: OrderItem[];
   total: number;
+  shippingAddress: ShippingAddress;
+  payment: PaymentSummary;
   placedAt: string;
 }
 

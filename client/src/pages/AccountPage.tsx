@@ -26,6 +26,12 @@ function OrderCard({ order }: { order: Order }) {
               day: "numeric",
             })}{" "}
             &middot; {itemCount} item{itemCount === 1 ? "" : "s"}
+            {order.payment && (
+              <>
+                {" "}
+                &middot; {order.payment.brand} ending {order.payment.last4}
+              </>
+            )}
           </p>
         </div>
         <p className="text-base font-bold tabular-nums text-ink">{formatCurrency(order.total)}</p>
@@ -53,6 +59,13 @@ function OrderCard({ order }: { order: Order }) {
           );
         })}
       </ul>
+
+      {order.shippingAddress && (
+        <p className="border-t border-border px-4 py-3 text-xs text-muted">
+          Delivered to {order.shippingAddress.fullName}, {order.shippingAddress.line1},{" "}
+          {order.shippingAddress.city} {order.shippingAddress.postalCode}, {order.shippingAddress.country}
+        </p>
+      )}
     </div>
   );
 }

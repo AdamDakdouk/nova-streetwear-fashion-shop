@@ -4,12 +4,13 @@ import { Order } from "../models/Order";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { placeOrder } from "../services/order.service";
+import { CheckoutInput } from "../validators/order.validators";
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findById(req.userId);
   if (!user) throw new ApiError(404, "User not found");
 
-  const order = await placeOrder(user);
+  const order = await placeOrder(user, req.body as CheckoutInput);
   res.status(201).json({ order });
 });
 
