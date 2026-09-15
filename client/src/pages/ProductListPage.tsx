@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { X } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { useHero } from "../hooks/useHero";
 import { ProductGrid } from "../components/product/ProductGrid";
@@ -23,7 +24,7 @@ const SORT_LABELS: Record<SortOption, string> = {
 export function ProductListPage() {
   const { data: products, isLoading } = useProducts();
   const { data: hero } = useHero();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSort] = useState<SortOption>("featured");
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +73,13 @@ export function ProductListPage() {
     return list;
   }, [products, query, category, sort]);
 
+  function clearSearch() {
+    // Drops only the search term — an active category filter stays put.
+    const next = new URLSearchParams(searchParams);
+    next.delete("q");
+    setSearchParams(next, { replace: true });
+  }
+
   const categoryLabel = CATEGORY_BUCKETS.find((b) => b.value === category)?.label;
   const heading = query ? `Results for "${searchParams.get("q")}"` : categoryLabel ?? "All Products";
 
@@ -86,7 +94,24 @@ export function ProductListPage() {
 
       <div ref={gridRef} className="mb-6 flex scroll-mt-32 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-ink">{heading}</h1>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h1 className="font-heading text-2xl font-bold text-ink">{heading}</h1>
+            {query && (
+              /* Only below lg, where the header's search field is collapsed behind
+                 a toggle — clearing there otherwise means reopening the field,
+                 emptying it and submitting. At lg+ the field is always visible
+                 with the term still in it, so this would be a second way to do
+                 something already one click away. */
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-muted hover:border-ink hover:text-ink lg:hidden"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                Clear search
+              </button>
+            )}
+          </div>
           <p className="mt-1 text-sm text-muted">{filtered?.length ?? "—"} items</p>
         </div>
 
