@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NOVA">
+  <!-- Brand ink (#18181B), the same black used by the header bar and primary buttons. -->
+  <rect width="64" height="64" rx="14" fill="#18181B" />
+  <!-- The N is a path, not text: a favicon renders before (and independently of)
+       the Sora webfont, so glyph-based marks fall back to whatever the platform
+       has and look different on every OS. -->
+  <path d="M16 48 V16 H25 L39 37 V16 H48 V48 H39 L25 27 V48 Z" fill="#FFFFFF" />
+</svg>
