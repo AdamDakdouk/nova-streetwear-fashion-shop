@@ -25,6 +25,13 @@ export function Header() {
     const params = new URLSearchParams(location.pathname === "/" ? searchParams : undefined);
     if (query.trim()) {
       params.set("q", query.trim());
+      // A search looks across the whole catalogue, so it drops any active
+      // category. Searching "hat" while Footwear was selected used to return
+      // nothing — the two filters were ANDed, and a shopper who just typed a
+      // word reads an empty grid as "they don't sell it", not as "a filter you
+      // set earlier excluded it". The category links already clear the search
+      // the same way, so the two are mutually exclusive in both directions.
+      params.delete("category");
     } else {
       params.delete("q");
     }
