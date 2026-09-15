@@ -55,7 +55,7 @@ Deployed as a **single Vercel project** — the React app and the API share one 
 | `/api/*` | the Express app, as one serverless function |
 
 - `vercel.json` sets the build command (`npm run build -w client`), the output directory, the SPA rewrite that stops `/products/:id` 404ing on refresh, and bakes `VITE_API_URL=/api` into the build so it can't be forgotten.
-- `api/[...path].ts` is a catch-all function that awaits a database connection and hands the request to the **unchanged** Express app — Express still does all the routing, exactly as it does locally.
+- `api/index.ts` is a single function that awaits a database connection and hands the request to the **unchanged** Express app — Express still does all the routing, exactly as it does locally. Every `/api/*` path is rewritten to it, carrying the original path as a query parameter that the handler puts back on `req.url`. A catch-all filename (`api/[...path].ts`) is the tidier way to express that, but Vercel registered it as a *single* dynamic segment, so `/api/products` worked while `/api/products/:id` was rejected at the edge.
 - `connectDB` memoises its connection on `globalThis`. A long-running server connects once at boot; a serverless one would otherwise open a fresh pool per request and exhaust the cluster's connection limit.
 - Root `tsconfig.json` exists purely so `api/` is type-checked. Vercel bundles that file with esbuild and never type-checks it, which would otherwise leave the deployment's most important file the only one nothing verifies.
 
@@ -76,6 +76,9 @@ Deployed as a **single Vercel project** — the React app and the API share one 
 | `npm run seed` | Re-seeds the database and copies product images |
 | `npm run test` | Runs backend (Jest) and frontend (Vitest) test suites |
 | `npm run build` | Type-checks and builds both workspaces |
+| `npm run optimize-images` | Re-encodes product photography in place (see below) |
+
+**Product images:** the source photography is saved at near-lossless quality, which put roughly 9MB of images on a first page load. `npm run optimize-images` re-encodes `media/` and `client/public/products/` in place at quality 80 — about 91% smaller with no visible difference at the sizes this UI renders. Both trees get identical treatment on purpose: compressing only the served copy would work until the next `npm run seed` restored the heavy originals. It is a one-off to run after adding photography, not part of the build, since it is lossy and rewrites files in place.
 
 ## Project Structure
 

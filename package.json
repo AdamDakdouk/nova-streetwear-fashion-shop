@@ -10,9 +10,11 @@
     "seed": "npm run seed -w server",
     "test": "npm run test -w server && npm run test -w client",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "build": "npm run typecheck && npm run build -w server && npm run build -w client"
+    "build": "npm run typecheck && npm run build -w server && npm run build -w client",
+    "optimize-images": "node scripts/optimize-images.mjs"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "sharp": "^0.35.4"
   }
 }
