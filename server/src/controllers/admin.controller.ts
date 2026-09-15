@@ -3,6 +3,7 @@ import { Product } from "../models/Product";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { ProductInput } from "../validators/admin.validators";
+import { uploadImageBuffer } from "../services/storage.service";
 
 export const listProducts = asyncHandler(async (_req: Request, res: Response) => {
   const products = await Product.find().sort({ title: 1 });
@@ -41,5 +42,7 @@ export const uploadProductImage = asyncHandler(async (req: Request, res: Respons
   if (!req.file) {
     throw new ApiError(400, "No image file was provided");
   }
-  res.status(201).json({ url: `/uploads/${req.file.filename}` });
+
+  const url = await uploadImageBuffer(req.file.buffer, req.file.originalname, req.file.mimetype);
+  res.status(201).json({ url });
 });

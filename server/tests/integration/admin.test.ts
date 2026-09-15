@@ -5,8 +5,10 @@ import { app } from "../../src/app";
 import { User } from "../../src/models/User";
 import { Product } from "../../src/models/Product";
 import { sendOtpEmail } from "../../src/services/email.service";
+import { uploadImageBuffer } from "../../src/services/storage.service";
 
 const sendOtpEmailMock = sendOtpEmail as jest.Mock;
+const uploadImageBufferMock = uploadImageBuffer as jest.Mock;
 
 let mongo: MongoMemoryServer;
 
@@ -141,5 +143,46 @@ describe("admin product management", () => {
       .set("Authorization", `Bearer ${token}`);
     expect(wishlistRes.status).toBe(200);
     expect(wishlistRes.body).toEqual([]);
+  });
+
+  describe("image upload", () => {
+    it("rejects a non-admin", async () => {
+      const token = await makeVerifiedUser("uploader1@example.com", "user");
+      const res = await request(app)
+        .post("/api/admin/upload")
+        .set("Authorization", `Bearer ${token}`)
+        .attach("image", Buffer.from("fake-image-bytes"), { filename: "photo.jpg", contentType: "image/jpeg" });
+      expect(res.status).toBe(403);
+    });
+
+    it("uploads a valid image and returns the storage URL, never touching local disk", async () => {
+      const token = await makeVerifiedUser("uploader2@example.com", "admin");
+
+      const res = await request(app)
+        .post("/api/admin/upload")
+        .set("Authorization", `Bearer ${token}`)
+        .attach("image", Buffer.from("fake-image-bytes"), { filename: "photo.jpg", contentType: "image/jpeg" });
+
+      expect(res.status).toBe(201);
+      expect(res.body.url).toBe("https://mock-r2-public-url.example/products/mock.jpg");
+      expect(uploadImageBufferMock).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        "photo.jpg",
+        "image/jpeg"
+      );
+    });
+
+    it("rejects a non-image file type before it ever reaches storage", async () => {
+      const token = await makeVerifiedUser("uploader3@example.com", "admin");
+      uploadImageBufferMock.mockClear();
+
+      const res = await request(app)
+        .post("/api/admin/upload")
+        .set("Authorization", `Bearer ${token}`)
+        .attach("image", Buffer.from("not an image"), { filename: "notes.txt", contentType: "text/plain" });
+
+      expect(res.status).toBe(400);
+      expect(uploadImageBufferMock).not.toHaveBeenCalled();
+    });
   });
 });
