@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/Button";
-import { extractErrorCode, extractErrorMessage, extractFieldErrors } from "../api/client";
+import { extractErrorCode, extractErrorMessage, extractFieldErrors, extractRetryAfterMs } from "../api/client";
 import { useToast } from "../components/ui/Toast";
 
 type Mode = "login" | "register";
@@ -73,6 +73,14 @@ export function LoginPage() {
       await resendOtp({ email, purpose: "verify-email" });
       navigate("/verify-email", { state: { email, from } });
     } catch (err) {
+      const retryAfterMs = extractRetryAfterMs(err);
+      if (retryAfterMs) {
+        // Already on cooldown from an earlier send (e.g. at registration) — still
+        // take them to the verify screen so they see the real countdown instead
+        // of a bare "please wait" with no indication of how long.
+        navigate("/verify-email", { state: { email, from, retryAfterMs } });
+        return;
+      }
       setError(extractErrorMessage(err, "Could not resend the code."));
     }
   }

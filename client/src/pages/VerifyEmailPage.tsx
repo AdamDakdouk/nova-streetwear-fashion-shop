@@ -11,6 +11,10 @@ import { extractErrorMessage, extractRetryAfterMs } from "../api/client";
 interface LocationState {
   email?: string;
   from?: Location;
+  /** Set when arriving here from a resend attempt that was already on
+   * cooldown (e.g. clicked "Resend" on the login screen) — the real
+   * remaining wait, not a fresh 60s as if a new code had just gone out. */
+  retryAfterMs?: number;
 }
 
 export function VerifyEmailPage() {
@@ -27,9 +31,11 @@ export function VerifyEmailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // A code was just sent by whatever flow (register, or "resend" from login)
-    // brought the shopper here — start the cooldown immediately.
-    cooldown.start(60_000);
+    // Usually a code was just sent by whatever flow brought the shopper here
+    // (register, or a successful "resend" from login) — start a fresh 60s
+    // cooldown. But if they arrived because a resend attempt was *already*
+    // cooling down, honor the real remaining time instead of overstating it.
+    cooldown.start(state?.retryAfterMs ?? 60_000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -75,7 +81,16 @@ export function VerifyEmailPage() {
 
       <h1 className="mt-4 font-heading text-2xl font-bold text-ink">Check your email</h1>
       <p className="mt-1 text-sm text-muted">
-        We sent a 6-digit code to <span className="font-medium text-ink">{email}</span>.
+        {state?.retryAfterMs ? (
+          <>
+            A code was already sent to <span className="font-medium text-ink">{email}</span> — check your email,
+            or wait to request a new one.
+          </>
+        ) : (
+          <>
+            We sent a 6-digit code to <span className="font-medium text-ink">{email}</span>.
+          </>
+        )}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4" noValidate>
