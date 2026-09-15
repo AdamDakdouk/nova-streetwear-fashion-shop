@@ -6,6 +6,7 @@ import { ProductGrid } from "../components/product/ProductGrid";
 import { HeroBanner } from "../components/product/HeroBanner";
 import { CategoryNav } from "../components/layout/CategoryNav";
 import { bucketMatches, CATEGORY_BUCKETS } from "../lib/categories";
+import { productMatchesQuery } from "../lib/search";
 
 /** Breathing room between the sticky header and the section title. */
 const TITLE_GAP = 16;
@@ -59,7 +60,7 @@ export function ProductListPage() {
     if (!products) return products;
 
     let list = products.filter((p) => {
-      const matchesQuery = !query || p.title.toLowerCase().includes(query);
+      const matchesQuery = !query || productMatchesQuery(p, query);
       const matchesCategory = !category || bucketMatches(category, p.category);
       return matchesQuery && matchesCategory;
     });

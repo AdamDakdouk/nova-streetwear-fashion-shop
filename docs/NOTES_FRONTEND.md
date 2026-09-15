@@ -85,6 +85,16 @@
 - Positions live in `sessionStorage` keyed by React Router's `location.key`, so they're per-tab and survive a page's remount, and every access is wrapped in try/catch because storage throws in private mode.
 - This replaced a one-off `window.scrollTo` that `LegalPage` was doing for itself; that case is now covered by the same rule.
 
+## Search
+
+- Search matches meaning, not letters. The original `title.toLowerCase().includes(query)` failed on real queries a shopper actually types: "belts" missed the Leather Belt (plural), and "hat" missed the Basecap (different word for the same thing).
+- `lib/search.ts` does two things: stems each word to a singular form on **both** sides so plurals match either direction, and runs a small hand-written synonym table mapping everyday words onto this catalogue's vocabulary (hat → basecap, sweater → hoodie, trainers → sneakers, shades → sunglasses).
+- The table is deliberately hand-written rather than a fuzzy-distance match. At fifteen products the failures are specific and known, and a wrong fuzzy hit ("bag" matching "bomber") is worse than no hit — a shopper who sees the wrong product assumes you don't stock theirs.
+- Synonyms are pruned for precision over recall, and the tests encode that. Mapping "jean" → "denim"/"pant" made a search for jeans return the Denim Jacket and every other trouser; a jeans search returning a jacket is worse than one returning only jeans.
+- Matching is AND across words, so adding words narrows: "jacket" returns both jackets, "denim jacket" returns one. A multi-word query is also retried collapsed ("t shirt" → "tshirt"), but only after the per-word pass fails, so unrelated words can't accidentally run together.
+- Terms of one or two characters must match a whole word rather than a substring — otherwise "s" (a real size value) behaves as a wildcard matching the entire catalogue.
+- It searches title, category, slug and variant values, so "olive" finds the Olive Oil tee and the Olive bomber. `tests/search.test.ts` runs against a fixture mirroring the real catalogue including variants, so the tests fail if the vocabulary drifts away from the synonym table.
+
 ## Responsive approach
 
 - Mobile-first Tailwind breakpoints (`sm/md/lg/xl`), a product grid that goes 1 → 2 → 3 → 4 columns, a slide-in `MobileNav` below `md` instead of trying to cram the desktop nav into a small viewport, and a cart summary that sits inline on mobile vs. a sticky side column on `lg+`.

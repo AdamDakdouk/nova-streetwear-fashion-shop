@@ -16,10 +16,13 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   const { user } = useAuthStore();
   const openLogoutDialog = useLogoutDialogStore((s) => s.open);
 
+  // Keyed on location.key, not pathname: the category links navigate to
+  // "/?category=clothing", which leaves the pathname untouched, so a
+  // pathname-only dependency left the drawer open over the results.
   useEffect(() => {
     onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.key]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
