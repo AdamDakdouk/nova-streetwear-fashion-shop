@@ -75,6 +75,13 @@
 - `StarRating` renders half-star precision (a clipped `overflow-hidden` wrapper at `fill * 100%` width over an outline star) rather than rounding a 4.3 average down to a blunt 4 or up to 5 — small detail, but a rounded-off average is the kind of thing that reads as sloppy once you notice it.
 - Product cards only render the rating row when `reviewCount > 0` — with every product starting at zero reviews, showing "No reviews yet" on all 15 cards at once would be more noise than signal. The detail page's larger `StarRating` does show "No reviews yet" since it's one product in focus, not a repeated line down a grid.
 
+## Scroll on navigation
+
+- React Router leaves scroll position alone across navigations, so opening a product from halfway down the grid landed the shopper halfway down the product page — usually at the reviews, since the offset carries over and then clamps to the shorter page's height. `ScrollManager` in `AppLayout` resets to the top whenever the **pathname** changes.
+- It deliberately ignores navigations where only the query string changed. A category filter or a search is the same page repositioning itself, and `ProductListPage` already scrolls its section title into place — `AppLayout` sits above it, so its layout effect runs *after* the page's and would otherwise undo that work.
+- Back/forward also go to the top rather than restoring the previous offset. Restoring properly means capturing the position *before* the browser clamps it to the incoming page's height, and that clamp fires before this component ever sees the new location (an attempt at it stored 906 instead of the actual 2600). The workaround is hooking link clicks to snapshot the position first, which trades a fragile global listener for a nicety — not worth it here, and worth knowing if it's ever revisited.
+- This replaced a one-off `window.scrollTo` that `LegalPage` was doing for itself; that case is now covered by the same rule.
+
 ## Responsive approach
 
 - Mobile-first Tailwind breakpoints (`sm/md/lg/xl`), a product grid that goes 1 → 2 → 3 → 4 columns, a slide-in `MobileNav` below `md` instead of trying to cram the desktop nav into a small viewport, and a cart summary that sits inline on mobile vs. a sticky side column on `lg+`.

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Info } from "lucide-react";
 import { LEGAL_DISCLAIMER, type LegalDocument } from "../lib/legalContent";
 
@@ -7,13 +6,6 @@ interface LegalPageProps {
 }
 
 export function LegalPage({ document: doc }: LegalPageProps) {
-  // These pages are reached from the footer, which means the click usually
-  // happens at the bottom of a long page — without this you land on the new
-  // page already scrolled past its own title.
-  useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, [doc.title]);
-
   return (
     <div>
       <div className="bg-ink px-4 py-16 text-center sm:px-6 sm:py-20">
