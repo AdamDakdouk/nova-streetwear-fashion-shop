@@ -192,9 +192,19 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <button type="button" onClick={switchMode} className="focus-ring mt-4 self-center rounded-md text-sm text-muted hover:text-ink">
-        {mode === "login" ? "Need an account? Register" : "Already have an account? Sign in"}
-      </button>
+      {/* Only the action word is a control. Previously the whole sentence was one
+          button, so "Need an account?" was clickable too — the target read as a
+          question rather than something to press. */}
+      <p className="mt-4 self-center text-sm text-muted">
+        {mode === "login" ? "Need an account? " : "Already have an account? "}
+        <button
+          type="button"
+          onClick={switchMode}
+          className="focus-ring rounded-md font-semibold text-accent underline-offset-2 hover:text-accent-hover hover:underline"
+        >
+          {mode === "login" ? "Sign up" : "Sign in"}
+        </button>
+      </p>
     </div>
   );
 }

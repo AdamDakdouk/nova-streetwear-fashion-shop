@@ -233,22 +233,27 @@ export function AdminDashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex items-center justify-between">
+        {/* Stacks below sm. Kept on one row at every width, the two actions were
+            squeezed until their labels wrapped onto two lines and collided with
+            the heading on a phone. Giving them their own row is better than
+            shrinking them — an admin action that is hard to hit is worse than
+            one that takes a little vertical space. */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-ink">Products</h1>
             <p className="mt-1 text-sm text-muted">
               {visibleProducts.length} of {products?.length ?? 0}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               to="/admin/hero"
-              className="focus-ring inline-flex h-11 items-center gap-1.5 rounded-md border border-border px-4 text-sm font-medium text-ink hover:bg-black/5"
+              className="focus-ring inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-md border border-border px-4 text-sm font-medium text-ink hover:bg-black/5"
             >
               <LayoutTemplate className="h-4 w-4" aria-hidden="true" /> Homepage Hero
             </Link>
             <Link to="/admin/products/new">
-              <Button>
+              <Button className="whitespace-nowrap">
                 <Plus className="h-4 w-4" aria-hidden="true" /> Add Product
               </Button>
             </Link>
