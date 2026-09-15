@@ -41,7 +41,7 @@ npm run dev
 
 **Admin dashboard:** `/admin/login` — `admin@nova.com` / `AdminPass123!` (not linked from the storefront UI; add/edit/delete products including image upload, and edit the homepage hero banner — copy, button label, and 1–4 images, with a live preview). See `NOTES_BACKEND.md` / `NOTES_FRONTEND.md` for how the role gating works.
 
-**Email/OTP:** registration, email verification, and password reset send real email via [Resend](https://resend.com). Without a verified domain on that account, Resend's sandbox sender can only deliver to the email address the Resend account itself was signed up with — testing with any other address will bounce. `RESEND_API_KEY` is required at boot (the server won't start without it).
+**Email/OTP:** registration, email verification, and password reset send real email via [Resend](https://resend.com). `EMAIL_FROM` must be an address on a domain verified in Resend — with a verified domain, anyone can register and receive their own verification code. Resend's shared sandbox sender (`onboarding@resend.dev`) needs no DNS setup but only ever delivers to the address the Resend account was registered with, so it works for local testing and not for anyone else. `RESEND_API_KEY` is required at boot (the server won't start without it).
 
 **Admin image uploads:** stored on [Cloudflare R2](https://dash.cloudflare.com) (S3-compatible object storage), not the app's own server — a local-disk approach was tried first and dropped once it was clear it wouldn't survive an actual deploy (see `NOTES_BACKEND.md`). Needs a bucket with public access enabled and an API token; all 5 `R2_*` vars are required at boot.
 
