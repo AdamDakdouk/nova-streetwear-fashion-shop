@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Heart, LogOut, Package, ShoppingBag, User as UserIcon, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
@@ -34,7 +35,14 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       isActive ? "bg-accent-light text-accent" : "text-ink hover:bg-black/5"
     }`;
 
-  return (
+  // Rendered into document.body rather than in place. This drawer sits inside
+  // <header>, which uses backdrop-blur — and a backdrop-filter makes an element
+  // a containing block for fixed-position descendants. Left where it is,
+  // `fixed inset-0` resolved against the header's ~113px box instead of the
+  // viewport, so the panel was 112px tall and its links spilled out over the
+  // page with no background behind them. A portal puts it beyond the reach of
+  // any ancestor's containing block, now or later.
+  return createPortal(
     <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="absolute inset-y-0 right-0 flex w-4/5 max-w-xs flex-col bg-surface p-4 shadow-popover">
@@ -102,6 +110,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           </Link>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
