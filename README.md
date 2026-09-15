@@ -45,6 +45,29 @@ npm run dev
 
 **Admin image uploads:** stored on [Cloudflare R2](https://dash.cloudflare.com) (S3-compatible object storage), not the app's own server — a local-disk approach was tried first and dropped once it was clear it wouldn't survive an actual deploy (see `NOTES_BACKEND.md`). Needs a bucket with public access enabled and an API token; all 5 `R2_*` vars are required at boot.
 
+## Deployment (Vercel)
+
+Deployed as a **single Vercel project** — the React app and the API share one domain, so there is no CORS to configure and no pair of URLs to keep in sync.
+
+| Path | Served by |
+|---|---|
+| `/` | the built React app (`client/dist`) |
+| `/api/*` | the Express app, as one serverless function |
+
+- `vercel.json` sets the build command (`npm run build -w client`), the output directory, the SPA rewrite that stops `/products/:id` 404ing on refresh, and bakes `VITE_API_URL=/api` into the build so it can't be forgotten.
+- `api/[...path].ts` is a catch-all function that awaits a database connection and hands the request to the **unchanged** Express app — Express still does all the routing, exactly as it does locally.
+- `connectDB` memoises its connection on `globalThis`. A long-running server connects once at boot; a serverless one would otherwise open a fresh pool per request and exhaust the cluster's connection limit.
+- Root `tsconfig.json` exists purely so `api/` is type-checked. Vercel bundles that file with esbuild and never type-checks it, which would otherwise leave the deployment's most important file the only one nothing verifies.
+
+**Setting it up:**
+
+1. Import the GitHub repo in Vercel. Leave the root directory as the repo root — `vercel.json` handles the rest.
+2. Add the environment variables (Project → Settings → Environment Variables). All of these are required at boot; the API throws a clear "Missing required environment variable" on the first request if any is absent:
+   `MONGODB_URI`, `JWT_SECRET`, `RESEND_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`.
+   Optional: `JWT_EXPIRES_IN`, `EMAIL_FROM`.
+3. In MongoDB Atlas, set Network Access to allow `0.0.0.0/0`. Vercel's outbound IPs are not fixed, so an allowlist of specific addresses will fail intermittently.
+4. Deploy, then check `/api/health` returns `{"status":"ok"}` before testing the storefront.
+
 ## Scripts
 
 | Command | Description |

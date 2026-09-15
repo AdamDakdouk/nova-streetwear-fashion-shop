@@ -1,0 +1,17 @@
+{
+  "//": "Covers the Vercel serverless entry point in api/, which sits outside both workspaces. Vercel bundles it with esbuild and never type-checks it, so without this the single file the whole deployment depends on would be the one file nothing verifies.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["api/**/*.ts", "server/src/types/**/*.d.ts"]
+}
