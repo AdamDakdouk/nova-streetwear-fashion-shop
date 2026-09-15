@@ -72,6 +72,8 @@
 ## Product reviews
 
 - `ReviewSection` finds "my review" by comparing `review.user` against the signed-in user's id from `authStore` inside the fetched review list — no separate "get my review" endpoint. Simpler request surface for a per-product review count that's realistically always small.
+- After posting, the write form collapses and the review joins the list like everyone else's, tagged **Your review** with Edit and Delete beside it. Leaving the form open showed the same review twice — once in an editable box whose "Update Review" button read like unsaved work, and again in the list below — so there was no clear moment of "this is saved". The form is for writing a review; once one exists it belongs in the list, and editing is a deliberate step back into the form (prefilled, with Cancel).
+- Your own review sorts to the top of the list, since immediately after posting it is the thing you are looking for.
 - `StarRating` renders half-star precision (a clipped `overflow-hidden` wrapper at `fill * 100%` width over an outline star) rather than rounding a 4.3 average down to a blunt 4 or up to 5 — small detail, but a rounded-off average is the kind of thing that reads as sloppy once you notice it.
 - Product cards only render the rating row when `reviewCount > 0` — with every product starting at zero reviews, showing "No reviews yet" on all 15 cards at once would be more noise than signal. The detail page's larger `StarRating` does show "No reviews yet" since it's one product in focus, not a repeated line down a grid.
 
