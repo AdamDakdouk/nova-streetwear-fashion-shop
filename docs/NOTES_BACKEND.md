@@ -58,6 +58,11 @@
 - Reviews live under `/api/products/:id/reviews` (nested route, `mergeParams` router) rather than a flat `/api/reviews?product=...` — the product id is always the access pattern, so it belongs in the path.
 - Submitting a second review for the same product is a `findOneAndUpdate` with `upsert: true` against the unique `{product, user}` index, not a 409 — "leave a review" and "edit your review" are the same form and the same request on the frontend, no separate edit flow to build or explain.
 
+## Order history
+
+- `GET /api/orders` added for the account page's purchase history — scoped to `req.userId` and sorted newest first. The route sits above `GET /:id` in `order.routes.ts`; registered the other way round, Express would match the bare path against the `:id` param.
+- Ownership is enforced in the query itself (`Order.find({ user: req.userId })`) rather than by fetching and filtering afterwards, the same shape as the existing `getOrder`. `tests/integration/orders.test.ts` covers the leak case directly: a second account asking for orders gets an empty list, not someone else's purchases.
+
 ## Checkout / concurrency
 
 - `placeOrder` re-validates every cart line's stock *before* mutating anything (see `order.service.ts`), so a stale cart (stock changed since the item was added) fails cleanly with a 409 and leaves the cart and product stock untouched — verified in `tests/unit/order.service.test.ts`.

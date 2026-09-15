@@ -1,16 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Heart, LogOut, Menu, Search, ShoppingBag, User as UserIcon, X } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
-import { useLogoutDialogStore } from "../../store/logoutDialogStore";
+import { Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useCart } from "../../hooks/useCart";
 import { MobileNav } from "./MobileNav";
+import { AccountMenu } from "./AccountMenu";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { user } = useAuthStore();
-  const openLogoutDialog = useLogoutDialogStore((s) => s.open);
   const { data: cart } = useCart();
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
@@ -94,21 +91,7 @@ export function Header() {
             )}
           </Link>
 
-          {user ? (
-            <button
-              onClick={openLogoutDialog}
-              className="focus-ring hidden h-10 items-center gap-1.5 rounded-full border border-border px-3 text-sm font-medium text-ink hover:bg-black/5 md:flex"
-            >
-              <LogOut className="h-4 w-4" aria-hidden="true" /> Log out
-            </button>
-          ) : (
-            <Link
-              to="/login"
-              className="focus-ring hidden h-10 items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-medium text-white hover:bg-charcoal md:flex"
-            >
-              <UserIcon className="h-4 w-4" aria-hidden="true" /> Sign In
-            </Link>
-          )}
+          <AccountMenu />
 
           <button
             onClick={() => setMobileOpen(true)}

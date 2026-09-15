@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Heart, LogIn, LogOut, Package, ShoppingBag, X } from "lucide-react";
+import { Heart, LogOut, Package, ShoppingBag, User as UserIcon, X } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useLogoutDialogStore } from "../../store/logoutDialogStore";
 import { CATEGORY_BUCKETS } from "../../lib/categories";
@@ -75,21 +75,30 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
         </nav>
 
         {user ? (
-          <button
-            onClick={() => {
-              onClose();
-              openLogoutDialog();
-            }}
-            className="focus-ring mt-auto flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium text-danger hover:bg-danger/5"
-          >
-            <LogOut className="h-5 w-5" aria-hidden="true" /> Log out
-          </button>
+          <div className="mt-auto border-t border-border pt-2">
+            <div className="px-4 py-2">
+              <p className="truncate text-sm font-semibold text-ink">{user.name}</p>
+              <p className="truncate text-xs text-muted">{user.email}</p>
+            </div>
+            <NavLink to="/account" className={linkClass}>
+              <UserIcon className="h-5 w-5" aria-hidden="true" /> My Account
+            </NavLink>
+            <button
+              onClick={() => {
+                onClose();
+                openLogoutDialog();
+              }}
+              className="focus-ring flex w-full items-center gap-3 rounded-md px-4 py-3 text-base font-medium text-danger hover:bg-danger/5"
+            >
+              <LogOut className="h-5 w-5" aria-hidden="true" /> Log out
+            </button>
+          </div>
         ) : (
           <Link
             to="/login"
             className="focus-ring mt-auto flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium text-ink hover:bg-black/5"
           >
-            <LogIn className="h-5 w-5" aria-hidden="true" /> Sign In
+            <UserIcon className="h-5 w-5" aria-hidden="true" /> Account
           </Link>
         )}
       </div>

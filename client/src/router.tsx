@@ -13,6 +13,9 @@ import { WishlistPage } from "./pages/WishlistPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import { OrderConfirmationPage } from "./pages/OrderConfirmationPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { AccountPage } from "./pages/AccountPage";
+import { LegalPage } from "./pages/LegalPage";
+import { PRIVACY_POLICY, TERMS_AND_CONDITIONS, TERMS_OF_SERVICE } from "./lib/legalContent";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminProductFormPage } from "./pages/admin/AdminProductFormPage";
@@ -41,9 +44,13 @@ export const router = createBrowserRouter([
       { path: "/reset-password", element: <ResetPasswordPage /> },
       { path: "/", element: <ProductListPage /> },
       { path: "/products/:id", element: <ProductDetailPage /> },
+      { path: "/privacy-policy", element: <LegalPage document={PRIVACY_POLICY} /> },
+      { path: "/terms-and-conditions", element: <LegalPage document={TERMS_AND_CONDITIONS} /> },
+      { path: "/terms-of-service", element: <LegalPage document={TERMS_OF_SERVICE} /> },
       {
         element: <ProtectedRoute />,
         children: [
+          { path: "/account", element: <AccountPage /> },
           { path: "/cart", element: <CartPage /> },
           { path: "/wishlist", element: <WishlistPage /> },
           { path: "/checkout", element: <CheckoutPage /> },

@@ -13,6 +13,12 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   res.status(201).json({ order });
 });
 
+export const listOrders = asyncHandler(async (req: Request, res: Response) => {
+  // Scoped to the caller, newest first — the account page's purchase history.
+  const orders = await Order.find({ user: req.userId }).sort({ placedAt: -1 });
+  res.status(200).json({ orders });
+});
+
 export const getOrder = asyncHandler(async (req: Request, res: Response) => {
   const order = await Order.findOne({ _id: req.params.id, user: req.userId });
   if (!order) throw new ApiError(404, "Order not found");
