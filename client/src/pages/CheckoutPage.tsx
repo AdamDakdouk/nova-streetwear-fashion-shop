@@ -83,7 +83,10 @@ export function CheckoutPage() {
   const [country, setCountry] = useState("");
 
   const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
+  // Prefilled: this is a simulated checkout and the demo card is the only
+  // number that makes sense to use here. It also removes the main reason
+  // someone might reach for a real card out of habit.
+  const [cardNumber, setCardNumber] = useState(DEMO_CARD_NUMBER);
   const [expiryMonth, setExpiryMonth] = useState("");
   const [expiryYear, setExpiryYear] = useState("");
   const [cvv, setCvv] = useState("");
@@ -201,8 +204,9 @@ export function CheckoutPage() {
         <p className="text-xs leading-relaxed text-ink">
           <span className="font-semibold">Demo checkout — do not enter a real card.</span> No payment is taken and
           no bank is contacted. Your card number, expiry and security code stay in this browser and are never sent
-          to the server; only the card brand and last 4 digits are saved with the order. Use{" "}
-          <span className="font-mono font-medium">{DEMO_CARD_NUMBER}</span> with any future expiry and any CVV.
+          to the server; only the card brand and last 4 digits are saved with the order. The demo card{" "}
+          <span className="font-mono font-medium">{DEMO_CARD_NUMBER}</span> is filled in for you — add any future
+          expiry date and any CVV.
         </p>
       </div>
 
