@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Heart, LogOut, Package, ShoppingBag, User as UserIcon, X } from "lucide-react";
@@ -10,6 +10,9 @@ interface MobileNavProps {
   open: boolean;
   onClose: () => void;
 }
+
+/** Must match the transition duration on the overlay and panel below. */
+const ANIMATION_MS = 260;
 
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const location = useLocation();
@@ -31,7 +34,21 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
     };
   }, [open]);
 
-  if (!open) return null;
+  // Kept mounted for the length of the exit animation. Unmounting the moment
+  // `open` flips to false removes the element before anything can animate out,
+  // which is why the drawer used to simply vanish.
+  const [isMounted, setIsMounted] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setIsMounted(true);
+      return;
+    }
+    const timer = setTimeout(() => setIsMounted(false), ANIMATION_MS);
+    return () => clearTimeout(timer);
+  }, [open]);
+
+  if (!isMounted) return null;
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `focus-ring flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium ${
@@ -47,8 +64,22 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   // any ancestor's containing block, now or later.
   return createPortal(
     <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="absolute inset-y-0 right-0 flex w-4/5 max-w-xs flex-col bg-surface p-4 shadow-popover">
+      <div
+        onClick={onClose}
+        className={`absolute inset-0 bg-ink/40 motion-reduce:animate-none ${
+          open ? "animate-fade-in-fast" : "animate-fade-out-fast"
+        }`}
+      />
+      {/* Frosted beige rather than flat white: bg-background is the storefront's
+          own beige, so the blur picks up the page behind it instead of reading
+          as a separate white sheet. The opaque fallback comes first — without
+          backdrop-filter support a 70% panel would leave the links sitting on
+          whatever is behind them. */}
+      <div
+        className={`absolute inset-y-0 right-0 flex w-4/5 max-w-xs flex-col border-l border-white/40 bg-background/95 p-4 shadow-popover backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 motion-reduce:animate-none ${
+          open ? "animate-drawer-in" : "animate-drawer-out"
+        }`}
+      >
         <div className="mb-4 flex items-center justify-between">
           <span className="font-heading text-lg font-bold text-ink">Menu</span>
           <button

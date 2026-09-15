@@ -35,10 +35,30 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "fade-out": {
+          "0%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
+        "drawer-in": {
+          "0%": { opacity: "0", transform: "translateX(1.5rem)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "drawer-out": {
+          "0%": { opacity: "1", transform: "translateX(0)" },
+          "100%": { opacity: "0", transform: "translateX(1.5rem)" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both",
         "fade-in": "fade-in 0.3s ease-out both",
+        // Drawer enter/exit. Animations rather than transitions: an animation
+        // starts on its own when the element mounts, where a transition needs a
+        // class to flip on a later frame — which silently never happens if
+        // frames are starved, leaving the drawer mounted but invisible.
+        "fade-in-fast": "fade-in 0.26s ease-out both",
+        "fade-out-fast": "fade-out 0.26s ease-in both",
+        "drawer-in": "drawer-in 0.26s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "drawer-out": "drawer-out 0.26s cubic-bezier(0.7, 0, 0.84, 0) both",
       },
     },
   },
