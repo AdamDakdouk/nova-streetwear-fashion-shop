@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import multer from "multer";
 import { ApiError } from "../utils/ApiError";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction) {
   if (err instanceof ApiError) {
     res.status(err.statusCode).json({ message: err.message, details: err.details });

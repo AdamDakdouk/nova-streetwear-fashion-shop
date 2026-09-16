@@ -9,7 +9,7 @@ import { CategoryNav } from "../components/layout/CategoryNav";
 import { bucketMatches, CATEGORY_BUCKETS } from "../lib/categories";
 import { productMatchesQuery } from "../lib/search";
 
-/** Breathing room between the sticky header and the section title. */
+/** room between the sticky header and the section title. */
 const TITLE_GAP = 16;
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "name-asc";

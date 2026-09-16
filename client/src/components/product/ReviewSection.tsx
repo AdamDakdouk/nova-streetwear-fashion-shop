@@ -28,10 +28,6 @@ export function ReviewSection({ productId }: { productId: string }) {
     setComment(myReview?.comment ?? "");
   }, [myReview?._id, myReview?.rating, myReview?.comment]);
 
-  // The form is for writing a review, not for displaying one you already wrote.
-  // Once it exists it belongs in the list with everyone else's, and the form
-  // comes back only when you choose to edit — otherwise your review appears
-  // twice, and the form's "Update Review" button reads like unsaved work.
   const isFormOpen = !myReview || isEditing;
 
   async function handleSubmit(e: FormEvent) {
@@ -67,7 +63,7 @@ export function ReviewSection({ productId }: { productId: string }) {
     setIsEditing(false);
   }
 
-  // Your own review first — after posting it, it's the thing you're looking for.
+// Put the current user's review at the top so they can see what they just posted.
   const orderedReviews = reviews
     ? [...reviews].sort((a, b) => Number(b._id === myReview?._id) - Number(a._id === myReview?._id))
     : [];

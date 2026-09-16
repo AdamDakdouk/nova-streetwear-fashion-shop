@@ -47,7 +47,7 @@ export const getHero = asyncHandler(async (_req: Request, res: Response) => {
 
 export const updateHero = asyncHandler(async (req: Request, res: Response) => {
   const input = req.body as HeroInput;
-  // Upsert rather than update: there is only ever one hero, and creating it on
+  // there is only ever one hero, and creating it on
   // first save keeps the endpoint working against a database that was never seeded.
   const hero = await SiteContent.findOneAndUpdate({ key: HERO_KEY }, input, {
     new: true,

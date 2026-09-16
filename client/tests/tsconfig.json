@@ -1,0 +1,8 @@
+{
+  "//": "Editor-only config, same reason as server/tests/tsconfig.json: the app's tsconfig.json only includes src/, so an editor treats the test files as belonging to no project and reports the Vitest globals as undefined. Vitest compiles these through Vite itself and was never affected.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "**/*.tsx", "../src/**/*.ts", "../src/**/*.tsx"]
+}

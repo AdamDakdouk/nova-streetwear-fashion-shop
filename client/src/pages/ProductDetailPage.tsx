@@ -19,8 +19,7 @@ import { useToast } from "../components/ui/Toast";
 import { extractErrorMessage } from "../api/client";
 import type { Product, VariantSelection } from "../types";
 
-/** Picks the first in-stock option for every axis, so the page never opens on a
- * false "out of stock" state before the shopper has chosen anything. */
+//Picks the first in-stock option for every axis 
 function defaultSelection(product: Product): VariantSelection {
   const selection: VariantSelection = {};
   for (const axis of product.variants) {
@@ -114,9 +113,7 @@ export function ProductDetailPage() {
   }
 
   function handleToggleWishlist() {
-    // Guards the actual mutation, not just the button's disabled look — closes the
-    // window where a fast double-click fires twice before React re-renders the
-    // disabled state, which used to send alternating add/remove requests.
+// Guard against rapid double-clicks so we don't fire duplicate mutation requests before React re-renders.
     if (wishlistMutationInFlight.current) return;
 
     requireAuthThen(async () => {

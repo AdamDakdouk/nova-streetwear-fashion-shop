@@ -22,8 +22,8 @@ import { AdminProductFormPage } from "./pages/admin/AdminProductFormPage";
 import { AdminHeroPage } from "./pages/admin/AdminHeroPage";
 
 export const router = createBrowserRouter([
-  // Admin area intentionally lives outside AppLayout — no storefront header/nav/
-  // dialogs, and never linked from the public UI (URL-only, plus auth + role gating).
+// Admin routes bypass AppLayout to omit storefront nav/headers. 
+// Access is restricted to direct URLs and gated by auth/role checks.
   { path: "/admin/login", element: <AdminLoginPage /> },
   {
     path: "/admin",

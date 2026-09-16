@@ -4,7 +4,6 @@ import { validate } from "../middleware/validate";
 import { reviewSchema } from "../validators/review.validators";
 import { deleteReview, listReviews, upsertReview } from "../controllers/review.controller";
 
-// mergeParams so :id (the product id) from the parent product route is visible here.
 const router = Router({ mergeParams: true });
 
 router.get("/", listReviews);

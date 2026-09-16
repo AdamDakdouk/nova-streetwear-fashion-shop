@@ -25,8 +25,6 @@ function sanitizeUser(user: { _id: unknown; name: string; email: string; role: s
   return { id: String(user._id), name: user.name, email: user.email, role: user.role };
 }
 
-/** Maps an OTP check failure to the response the client should see. Kept centralized so
- * verify-email and reset-password give the shopper the same, actionable wording. */
 function otpErrorFor(reason: string | undefined): ApiError {
   switch (reason) {
     case "too-many-attempts":
@@ -57,8 +55,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   try {
     await sendOtpEmail(user.email, code, "verify-email");
   } catch (err) {
-    // Don't leave an orphaned, permanently-unverifiable account behind (the email is
-    // now taken, but the shopper never got a code and has no way to retry register).
+// Roll back pending account creation on email delivery failure so the user can retry registration.
     await User.deleteOne({ _id: user._id });
     throw new ApiError(500, "Could not send the verification email. Please try again.");
   }
@@ -147,10 +144,7 @@ export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
   try {
     await sendOtpEmail(user.email, code, purpose);
   } catch (err) {
-    // Swallow the send failure behind the same generic response used for a
-    // nonexistent account — surfacing it as an error would let an attacker
-    // tell "account exists but the provider hiccuped" apart from "no such
-    // account", exactly the enumeration this endpoint's wording is meant to hide.
+// Return a generic response on email send failure to prevent account enumeration.
     console.error("[resendOtp] failed to send email", err);
   }
 
@@ -186,7 +180,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     await sendOtpEmail(user.email, code, "reset-password");
   } catch (err) {
     // Same reasoning as resendOtp: never let a send failure be distinguishable
-    // from "no such account" — both must look identical to the caller.
+    // from "no such account", both must look identical to the caller.
     console.error("[forgotPassword] failed to send email", err);
   }
 

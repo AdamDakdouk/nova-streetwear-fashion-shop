@@ -5,7 +5,6 @@ import { env } from "./config/env";
 connectDB()
   .then(() => {
     app.listen(env.port, () => {
-      // eslint-disable-next-line no-console
       console.log(`[server] listening on :${env.port}`);
     });
   })

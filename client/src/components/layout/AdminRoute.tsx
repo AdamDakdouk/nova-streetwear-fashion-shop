@@ -2,8 +2,10 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { LogoutConfirmDialog } from "./LogoutConfirmDialog";
 
-/** Gates the admin dashboard behind both authentication and role — a signed-in
- * shopper who isn't an admin is bounced just as hard as a signed-out visitor. */
+/**
+ * Admin guard. Blocks non-admins (even logged-in shoppers) and signed-out users
+ * from reaching the admin dashboard.
+ */
 export function AdminRoute() {
   const isAuthenticated = Boolean(useAuthStore((s) => s.token));
   const role = useAuthStore((s) => s.user?.role);

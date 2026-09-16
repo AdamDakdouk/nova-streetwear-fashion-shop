@@ -15,21 +15,6 @@
     outline: none;
   }
 
-  /**
-   * iOS Safari zooms the whole page when a form control is focused whose text is
-   * smaller than 16px, and does not zoom back out afterwards. Most of this UI
-   * uses 14px inputs, so tapping the search field (or the card number field)
-   * nudged the layout on iPhone. Android and desktop browsers do not do this,
-   * which is why it only showed up on one device.
-   *
-   * The alternative fix — `maximum-scale=1` / `user-scalable=no` on the viewport
-   * meta — also blocks deliberate pinch-zoom, which people rely on to read. This
-   * removes the trigger instead of disabling the gesture.
-   *
-   * `input[class]` rather than `input`: every control here carries a Tailwind
-   * `text-sm`, and a bare element selector loses to a class. The attribute
-   * selector matches any classed control and outranks it without `!important`.
-   */
   @media (max-width: 639.98px) {
     input[class]:not([type="checkbox"]):not([type="radio"]),
     select[class],

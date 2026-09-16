@@ -6,15 +6,14 @@ interface HeroBannerProps {
   onShopClick: () => void;
 }
 
-/** Mirrors the server-side cap — extra images are ignored rather than breaking the layout. */
+//Mirrors the server-side cap — extra images are ignored rather than breaking the layout. 
 const MAX_IMAGES = 4;
 
 function HeroImages({ images }: { images: string[] }) {
   const shown = images.slice(0, MAX_IMAGES);
 
-  // One image keeps the original single-portrait treatment. Two or more get
-  // arranged into a tighter collage so the block stays the same visual weight
-  // instead of sprawling as images are added.
+// Single images keep the original full-portrait layout. 
+// Multiple images go into a compact collage so the section keeps the same visual weight.
   if (shown.length === 1) {
     return (
       <div className="relative mx-auto aspect-[3/4] w-full max-w-[260px] overflow-hidden rounded-2xl bg-black/5 shadow-popover lg:max-w-sm">

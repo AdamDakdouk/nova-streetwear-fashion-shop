@@ -18,7 +18,7 @@ function WishlistCard({ product }: { product: Product }) {
   const hasVariants = product.variants.length > 0;
 
   async function handleMoveToCart() {
-    if (hasVariants) return; // needs a variant choice first — handled via "View" link
+    if (hasVariants) return; 
     try {
       await addToCart.mutateAsync({ productId: product._id, variantSelection: {}, quantity: 1 });
       showToast(`Moved ${product.title} to your cart`);

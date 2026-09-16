@@ -19,12 +19,11 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   const { user } = useAuthStore();
   const openLogoutDialog = useLogoutDialogStore((s) => s.open);
 
-  // Keyed on location.key, not pathname: the category links navigate to
-  // "/?category=clothing", which leaves the pathname untouched, so a
-  // pathname-only dependency left the drawer open over the results.
+  // Key on `location.key` instead of `pathname`. 
+  // Category links switch search params without changing the pathname, so relying 
+  // on pathname alone left the mobile drawer open after clicking a link.
   useEffect(() => {
     onClose();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key]);
 
   useEffect(() => {
@@ -34,9 +33,8 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
     };
   }, [open]);
 
-  // Kept mounted for the length of the exit animation. Unmounting the moment
-  // `open` flips to false removes the element before anything can animate out,
-  // which is why the drawer used to simply vanish.
+  // Keep this mounted during the exit animation. 
+  // Unmounting as soon as `open` is false cuts off the animation, which is why the drawer used to instantly vanish.
   const [isMounted, setIsMounted] = useState(open);
 
   useEffect(() => {
@@ -51,34 +49,22 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   if (!isMounted) return null;
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `focus-ring flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium ${
-      isActive ? "bg-accent-light text-accent" : "text-ink hover:bg-black/5"
+    `focus-ring flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium ${isActive ? "bg-accent-light text-accent" : "text-ink hover:bg-black/5"
     }`;
 
-  // Rendered into document.body rather than in place. This drawer sits inside
-  // <header>, which uses backdrop-blur — and a backdrop-filter makes an element
-  // a containing block for fixed-position descendants. Left where it is,
-  // `fixed inset-0` resolved against the header's ~113px box instead of the
-  // viewport, so the panel was 112px tall and its links spilled out over the
-  // page with no background behind them. A portal puts it beyond the reach of
-  // any ancestor's containing block, now or later.
+  // Render via portal directly to document.body.
+  // Header's `backdrop-blur` creates a new containing block, which broke `fixed inset-0` 
+  // and squished the drawer inside the header's height. Portaling avoids CSS stacking context traps entirely.
   return createPortal(
     <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Menu">
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-ink/40 motion-reduce:animate-none ${
-          open ? "animate-fade-in-fast" : "animate-fade-out-fast"
-        }`}
+        className={`absolute inset-0 bg-ink/40 motion-reduce:animate-none ${open ? "animate-fade-in-fast" : "animate-fade-out-fast"
+          }`}
       />
-      {/* Frosted beige rather than flat white: bg-background is the storefront's
-          own beige, so the blur picks up the page behind it instead of reading
-          as a separate white sheet. The opaque fallback comes first — without
-          backdrop-filter support a 70% panel would leave the links sitting on
-          whatever is behind them. */}
       <div
-        className={`absolute inset-y-0 right-0 flex w-4/5 max-w-xs flex-col border-l border-white/40 bg-background/95 p-4 shadow-popover backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 motion-reduce:animate-none ${
-          open ? "animate-drawer-in" : "animate-drawer-out"
-        }`}
+        className={`absolute inset-y-0 right-0 flex w-4/5 max-w-xs flex-col border-l border-white/40 bg-background/95 p-4 shadow-popover backdrop-blur-xl supports-[backdrop-filter]:bg-background/85 motion-reduce:animate-none ${open ? "animate-drawer-in" : "animate-drawer-out"
+          }`}
       >
         <div className="mb-4 flex items-center justify-between">
           <span className="font-heading text-lg font-bold text-ink">Menu</span>

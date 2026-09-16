@@ -14,7 +14,6 @@ const reviewSchema = new Schema<IReview>(
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    // Snapshot rather than populate on every read — same pattern as Order line items.
     userName: { type: String, required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, trim: true, maxlength: 500, default: "" },

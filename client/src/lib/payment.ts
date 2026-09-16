@@ -71,5 +71,5 @@ export function isExpiryInPast(month: string, year: string): boolean {
   return y < currentYear || (y === currentYear && m < currentMonth);
 }
 
-/** A well-known test number, so the demo can be exercised without a real card. */
+/** A well-known test number, so the demo can be tested without a real card. */
 export const DEMO_CARD_NUMBER = "4242 4242 4242 4242";

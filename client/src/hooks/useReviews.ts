@@ -14,8 +14,6 @@ export function useSubmitReview(productId: string) {
   return useMutation({
     mutationFn: ({ rating, comment }: { rating: number; comment: string }) =>
       submitReview(productId, rating, comment),
-    // Invalidating the "products" prefix cascades to the list, this product's
-    // detail, and this product's review list — all three carry rating data.
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
   });
 }

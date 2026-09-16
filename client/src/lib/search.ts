@@ -1,19 +1,11 @@
 import type { ProductSummary } from "../types";
 
 /**
- * Search that matches what a shopper means rather than the exact letters they
- * typed. "belts" has to find the Leather Belt, and "hat" has to find the
- * Basecap — a plain `title.includes(query)` finds neither.
- *
- * Two mechanisms do the work:
- *  - words are reduced to a singular stem on both sides, so plurals match;
- *  - a small synonym table maps everyday words onto the vocabulary this
- *    catalogue actually uses.
- *
- * The table is deliberately hand-written and small. A stemmer or a fuzzy
- * distance metric would be the general answer, but at fifteen products the
- * failures are specific and known, and a wrong fuzzy match ("bag" matching
- * "bomber") is worse than no match at all.
+ * Basic fuzzy/synonym search.
+ * 
+ * Stems words to handle plurals ("belts" -> "belt") and maps common synonyms ("hat" -> "basecap") 
+ * to match exact catalog terms. Uses a small hardcoded map rather than a full fuzzy library 
+ * to avoid false positives.
  */
 
 /** Strips punctuation and casing: "T-Shirt" and "t shirt" both reduce to "tshirt". */
@@ -37,11 +29,8 @@ function stem(word: string): string {
   return singularize(normalizeWord(word));
 }
 
-/**
- * Everyday word -> words this catalogue uses. Keys and values are already
- * stemmed. Only the direction "what people type" -> "what we call it" is
- * needed, since the product side is indexed as-is.
- */
+// Synonym lookup table (typed search term -> catalog term).
+// Keys and values are pre-stemmed, so it only needs one-way mapping from query term to catalog match.
 const SYNONYMS: Record<string, string[]> = {
   // headwear
   hat: ["cap", "basecap"],

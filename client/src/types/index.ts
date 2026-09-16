@@ -43,10 +43,8 @@ export interface Product {
   reviewCount: number;
 }
 
-/** Admin CRUD endpoints return the raw product document — no computed `totalStock`/rating. */
 export type AdminProduct = Omit<Product, "totalStock" | "avgRating" | "reviewCount">;
 
-/** Admin-editable homepage hero. `heading` may contain newlines — each is a rendered line break. */
 export interface HeroContent {
   eyebrow: string;
   heading: string;
@@ -107,7 +105,7 @@ export interface ShippingAddress {
   country: string;
 }
 
-/** Only ever the brand and last four digits — the raw card never leaves the browser. */
+// Only stores card brand and last 4 digits. Raw card numbers never reach the server.
 export interface PaymentSummary {
   brand: string;
   last4: string;

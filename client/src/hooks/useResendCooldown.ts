@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-/** Tracks a countdown (e.g. "resend code in 47s") against a wall-clock end time,
- * so it stays accurate regardless of tab throttling. */
+// Countdown timer tied to a target timestamp so it stays accurate when background tabs throttle intervals.
 export function useResendCooldown() {
   const [remainingMs, setRemainingMs] = useState(0);
   const endAtRef = useRef<number | null>(null);

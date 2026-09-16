@@ -15,7 +15,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const listOrders = asyncHandler(async (req: Request, res: Response) => {
-  // Scoped to the caller, newest first — the account page's purchase history.
+  // Scoped to the caller, newest first, the account page's purchase history.
   const orders = await Order.find({ user: req.userId }).sort({ placedAt: -1 });
   res.status(200).json({ orders });
 });

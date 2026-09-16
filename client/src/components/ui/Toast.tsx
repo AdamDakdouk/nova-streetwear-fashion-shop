@@ -22,8 +22,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback((text: string, tone: "success" | "error" = "success") => {
     const id = nextId++;
-    // Cap how many can pile up at once — rapid-fire actions (spam-clicking a
-    // toggle, etc.) must not leave a growing stack of stale messages on screen.
+// Cap max visible toasts so rapid clicks don't flood the screen with stale messages.
     setToasts((prev) => [...prev.slice(-(MAX_VISIBLE_TOASTS - 1)), { id, text, tone }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

@@ -23,11 +23,7 @@ export interface CartView {
   total: number;
 }
 
-/**
- * Available stock for a given selection = the minimum stock across every axis
- * whose selected option matches. This trades exact per-combination inventory
- * for a simple, explainable model appropriate to this project's scope.
- */
+// Computes stock for a selected variant as the minimum stock across all matching option axes.
 export function resolveAvailableStock(
   product: Pick<IProduct, "variants" | "baseStock">,
   selection: Record<string, string>
@@ -41,7 +37,7 @@ export function resolveAvailableStock(
     const selectedValue = selection[axis.name];
     const option = axis.options.find((o) => o.value === selectedValue);
     if (!option) {
-      return 0; // selection doesn't cover this axis -> treat as unavailable
+      return 0; 
     }
     min = Math.min(min, option.stock);
   }
@@ -84,7 +80,7 @@ export async function buildCartView(user: IUser): Promise<CartView> {
 
   for (const line of user.cart) {
     const product = await Product.findById(line.product);
-    if (!product) continue; // product removed since being added to cart
+    if (!product) continue; 
 
     const unitPrice = product.price;
     const subtotal = unitPrice * line.quantity;

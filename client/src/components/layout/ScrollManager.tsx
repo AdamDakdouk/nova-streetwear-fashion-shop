@@ -24,10 +24,9 @@ function saveScroll(key: string, value: number): void {
 }
 
 /**
- * The page usually isn't at its final height the instant it renders — images
- * and fetched data can still be settling, and the browser clamps any scroll
- * past the current bottom. Re-applying over a few frames lets a deep position
- * stick once the content that justifies it exists.
+ * Re-apply scroll position across a few frames. 
+ * Prevents the browser from clamping scroll depth while images and fetched data
+ * are still expanding the page height.
  */
 function restoreScroll(target: number): () => void {
   let frame = 0;
@@ -49,18 +48,9 @@ function restoreScroll(target: number): () => void {
 }
 
 /**
- * React Router leaves scroll position alone across navigations, so a new page
- * inherits the previous one's offset — opening a product from halfway down the
- * grid landed the shopper at the product's reviews.
- *
- * New navigations start at the top; back and forward return to where that entry
- * was left.
- *
- * The position is snapshotted on the interactions that *precede* a navigation
- * (a click, a popstate) rather than when this component notices the new
- * location. By that later point the browser has already clamped `window.scrollY`
- * to the incoming page's height, so reading it there records the clamped number
- * instead of where the shopper actually was.
+ * Handles scroll restoration across route changes. 
+ * 
+ * Resets scroll to top on new navigations, but restores previous position on back/forward.
  */
 export function ScrollManager() {
   const location = useLocation();
@@ -86,9 +76,8 @@ export function ScrollManager() {
   }, []);
 
   useLayoutEffect(() => {
-    // Same page, different query — a category filter or a search. Those pages
-    // position themselves (ProductListPage scrolls to its section title), and
-    // this effect runs after theirs, so acting here would undo their work.
+// Skip scroll resets when only query params change (like filtering or searching).
+// Pages like `ProductListPage` handle their own scrolling for those changes, so resetting here would override them.
     if (lastPathname.current === location.pathname) {
       currentKey.current = location.key;
       return;

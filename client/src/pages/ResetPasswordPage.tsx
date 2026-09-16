@@ -31,7 +31,6 @@ export function ResetPasswordPage() {
 
   useEffect(() => {
     cooldown.start(60_000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!email) {

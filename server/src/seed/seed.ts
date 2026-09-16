@@ -70,8 +70,7 @@ async function seedDemoUser(): Promise<void> {
   const email = "demo@example.com";
   const existing = await User.findOne({ email });
   if (existing) {
-    // Re-running seed after the email-verification feature landed shouldn't leave an
-    // old demo account permanently locked out for lacking `emailVerified`.
+
     if (!existing.emailVerified) {
       existing.emailVerified = true;
       await existing.save();

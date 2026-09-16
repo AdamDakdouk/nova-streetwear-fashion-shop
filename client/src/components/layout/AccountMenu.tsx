@@ -5,9 +5,8 @@ import { useAuthStore } from "../../store/authStore";
 import { useLogoutDialogStore } from "../../store/logoutDialogStore";
 
 /**
- * The header's "Account" control. Signed out it's a plain link to sign in;
- * signed in it opens a small menu. Same label either way, so the control
- * doesn't change identity depending on auth state.
+ * Header "Account" button. Signed out, it links to login; signed in, it toggles 
+ * the dropdown menu. Kept the label the same in both states so the UI doesn't jump around.
  */
 export function AccountMenu() {
   const user = useAuthStore((s) => s.user);

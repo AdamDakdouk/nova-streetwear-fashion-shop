@@ -24,8 +24,7 @@ interface StarRatingProps {
   size?: "sm" | "md";
 }
 
-/** Read-only star display supporting half-star precision (e.g. a 4.3 average
- * renders 4 full stars + a ~30%-filled 5th, not just a rounded 4). */
+// Read-only rating stars with support for fractional fills (e.g. 4.3 shows 4 full stars and a 30% filled 5th star).
 export function StarRating({ rating, reviewCount, size = "sm" }: StarRatingProps) {
   const starSize = size === "sm" ? "h-3.5 w-3.5" : "h-5 w-5";
   const fills = [0, 1, 2, 3, 4].map((i) => Math.max(0, Math.min(1, rating - i)));

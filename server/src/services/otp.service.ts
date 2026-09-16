@@ -31,8 +31,7 @@ export interface OtpCheckResult {
   reason?: "missing" | "wrong-purpose" | "expired" | "too-many-attempts" | "incorrect";
 }
 
-/** Verifies a submitted code against the stored OTP. Does NOT mutate/clear it — callers
- * decide whether to consume (clear) on success or record the failed attempt on failure. */
+// Verifies OTP without mutating state. Callers handle consumption or failure recording.
 export async function checkOtp(
   otp: IOtp | null | undefined,
   purpose: OtpPurpose,

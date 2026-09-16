@@ -62,7 +62,6 @@ export function OrderConfirmationPage() {
         </div>
       </div>
 
-      {/* Orders placed before checkout collected these details have neither. */}
       {(order.shippingAddress || order.payment) && (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {order.shippingAddress && (

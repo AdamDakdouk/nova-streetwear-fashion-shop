@@ -4,7 +4,6 @@ export interface LegalSection {
   heading: string;
   paragraphs?: string[];
   bullets?: string[];
-  /** Rendered after the bullets, for a closing caveat that shouldn't lead the section. */
   footnote?: string;
 }
 
@@ -18,8 +17,7 @@ export interface LegalDocument {
 /**
  * Sample copy for a demo storefront. These are not real legal documents, were
  * not written or reviewed by a lawyer, and are here so the footer links lead to
- * a realistic page rather than a dead end. A real store needs its own terms,
- * drafted for the jurisdiction it operates in.
+ * a realistic page rather than a dead end. 
  */
 export const LEGAL_DISCLAIMER =
   "Sample content for a demo storefront. Not a real legal agreement and not legal advice.";

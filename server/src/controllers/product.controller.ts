@@ -15,8 +15,6 @@ export const list = asyncHandler(async (_req: Request, res: Response) => {
     price: p.price,
     thumbnail: p.thumbnail,
     category: p.category,
-    // Listing payload intentionally omits per-option `images` (only needed on
-    // the detail page) to keep the summary response light.
     variants: p.variants.map((axis) => ({
       name: axis.name,
       options: axis.options.map((opt) => ({ value: opt.value, stock: opt.stock })),
@@ -34,8 +32,6 @@ function totalStockOf(product: {
   if (product.variants.length === 0) {
     return product.baseStock;
   }
-  // Sum of the first axis's option stocks approximates total on-hand inventory
-  // for display purposes (exact per-combination stock is resolved separately).
   return product.variants[0].options.reduce((sum, opt) => sum + opt.stock, 0);
 }
 

@@ -1,0 +1,10 @@
+{
+  "//": "Editor-only config. The build's tsconfig.json excludes tests/ so they never land in dist/, but that also means an editor — which picks the nearest tsconfig to the open file — sees these files as belonging to no project, falls back to defaults without the Jest types, and flags every describe/it/beforeAll as an undefined name. Tests themselves are compiled by ts-jest via tsconfig.jest.json and were never actually broken.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "types": ["jest", "node"],
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "../src/**/*.ts"]
+}

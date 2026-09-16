@@ -192,9 +192,6 @@ export function LoginPage() {
         </Button>
       </form>
 
-      {/* Only the action word is a control. Previously the whole sentence was one
-          button, so "Need an account?" was clickable too — the target read as a
-          question rather than something to press. */}
       <p className="mt-4 self-center text-sm text-muted">
         {mode === "login" ? "Need an account? " : "Already have an account? "}
         <button

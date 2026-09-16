@@ -1,10 +1,5 @@
 import type { VariantAxis, VariantSelection } from "../types";
 
-/**
- * Mirrors the server's stock resolution rule (see server/src/services/cart.service.ts)
- * so the UI can disable/clamp controls before round-tripping to the API. The server
- * remains the source of truth and re-validates on every mutation.
- */
 export function resolveAvailableStock(
   variants: VariantAxis[],
   baseStock: number,

@@ -5,8 +5,7 @@
  * NOTE: the email and social links are placeholders for this demo build. The
  * address uses the reserved `.example` TLD so it can never reach a real inbox
  * by accident, and the social links point at the platforms rather than at a
- * guessed handle that might belong to someone else. Replace all three with real
- * accounts before this goes anywhere near production.
+ * guessed handle that might belong to someone else. 
  */
 export const SUPPORT_EMAIL = "support@nova.example";
 

@@ -21,9 +21,8 @@ apiClient.interceptors.response.use(
     const url: string = error.config?.url ?? "";
     const isAuthEndpoint = AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 
-    // A 401 from the login/register calls themselves just means "wrong credentials" —
-    // it must not trigger the "your session expired" redirect (that's only for a
-    // previously-valid token going stale on a protected route).
+    // Skip the session-expired redirect on 401s from login/register. 
+    // That's just bad credentials.
     if (error.response?.status === 401 && !isAuthEndpoint) {
       useAuthStore.getState().logout();
       if (window.location.pathname !== "/login") {
@@ -64,7 +63,7 @@ export function extractFieldErrors(error: unknown): Record<string, string> {
   return result;
 }
 
-/** Reads the machine-readable `details.code` some ApiErrors carry (e.g. EMAIL_NOT_VERIFIED). */
+// Grabs the error code from `details.code` if the API sent one (like EMAIL_NOT_VERIFIED).
 export function extractErrorCode(error: unknown): string | undefined {
   if (!axios.isAxiosError(error)) return undefined;
   return (error.response?.data as ApiErrorPayload | undefined)?.details?.code;

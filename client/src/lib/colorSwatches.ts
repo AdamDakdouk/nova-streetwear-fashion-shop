@@ -1,8 +1,5 @@
-/**
- * Maps a variant "Color" option's display value to a swatch color. Covers every
- * color used in the current seed catalog; falls back to a neutral dot for
- * anything unmapped rather than breaking.
- */
+// Maps variant color names to swatch hex values. 
+// Uses a neutral fallback for unmapped colors so the UI doesn't break.
 const COLOR_MAP: Record<string, string> = {
   blue: "#2C4A7C",
   "olive oil": "#6B6B3A",

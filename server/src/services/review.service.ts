@@ -12,9 +12,7 @@ function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-/** Computed live from the reviews collection rather than a denormalized counter
- * on Product — for a catalog this small, an aggregate query is cheap and it can
- * never drift out of sync with an edited/deleted review. */
+// Aggregates reviews on demand rather than caching a denormalized count on Product to avoid data drift.
 export async function getRatingSummary(productId: string): Promise<RatingSummary> {
   const [result] = await Review.aggregate([
     { $match: { product: new Types.ObjectId(productId) } },
@@ -25,7 +23,6 @@ export async function getRatingSummary(productId: string): Promise<RatingSummary
   return { avgRating: round1(result.avgRating), reviewCount: result.count };
 }
 
-/** Same as above but for every product in one query, for the listing page. */
 export async function getRatingSummariesByProduct(): Promise<Map<string, RatingSummary>> {
   const results = await Review.aggregate([
     { $group: { _id: "$product", avgRating: { $avg: "$rating" }, count: { $sum: 1 } } },

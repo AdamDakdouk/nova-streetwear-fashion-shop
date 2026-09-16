@@ -25,8 +25,6 @@ const siteContentSchema = new Schema<ISiteContent>(
   {
     key: { type: String, required: true, unique: true },
     eyebrow: { type: String, required: true, trim: true, maxlength: 40 },
-    // Newlines are meaningful: the storefront renders each line as its own
-    // line in the headline, so the admin controls where it breaks.
     heading: { type: String, required: true, trim: true, maxlength: 120 },
     subcopy: { type: String, required: true, trim: true, maxlength: 240 },
     ctaLabel: { type: String, required: true, trim: true, maxlength: 40 },

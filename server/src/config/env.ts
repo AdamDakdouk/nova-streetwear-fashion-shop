@@ -23,8 +23,6 @@ export const env = {
     accessKeyId: required("R2_ACCESS_KEY_ID"),
     secretAccessKey: required("R2_SECRET_ACCESS_KEY"),
     bucketName: required("R2_BUCKET_NAME"),
-    // Trim a trailing slash so callers can always do `${publicUrl}/${key}` without
-    // worrying whether it was pasted in with or without one.
     publicUrl: required("R2_PUBLIC_URL").replace(/\/$/, ""),
   },
 };

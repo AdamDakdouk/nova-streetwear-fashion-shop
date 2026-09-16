@@ -32,8 +32,6 @@ export async function placeOrder(user: IUser, details: CheckoutDetails): Promise
     throw new ApiError(400, "Your cart is empty");
   }
 
-  // Re-validate every line against current stock before mutating anything,
-  // so a failure never leaves partial stock decrements or an emptied cart.
   const resolvedLines: {
     productDoc: IProduct;
     quantity: number;

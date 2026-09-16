@@ -11,9 +11,6 @@ import { extractErrorMessage, extractRetryAfterMs } from "../api/client";
 interface LocationState {
   email?: string;
   from?: Location;
-  /** Set when arriving here from a resend attempt that was already on
-   * cooldown (e.g. clicked "Resend" on the login screen) — the real
-   * remaining wait, not a fresh 60s as if a new code had just gone out. */
   retryAfterMs?: number;
 }
 

@@ -17,7 +17,7 @@ export interface SeedProduct {
   category: string;
   variants: SeedVariantAxis[];
   baseStock: number; // used only when variants is empty
-  images: string[]; // filenames, relative to /media — default gallery (first color, or only look)
+  images: string[]; // filenames, relative to /media, default gallery (first color, or only look)
   thumbnail: string; // filename, relative to /media
 }
 

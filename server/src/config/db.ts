@@ -1,27 +1,19 @@
 import mongoose from "mongoose";
 import { env } from "./env";
 
-/** Strips credentials before the URI ever touches a log line — this same string
- * would otherwise land in a real deployment's log aggregator, not just a local
- * terminal. */
+// Redacts credentials from DB connection strings before logging 
+// to prevent leaking secrets in log aggregators.
 export function redactConnectionString(uri: string): string {
-  // Greedy match walks to the *last* "@" in the string before backtracking, so
-  // even a password containing a raw (invalid, unescaped) "@" gets fully
-  // swallowed rather than leaking its tail past the first "@" match would hit.
+// Greedy match splits at the last `@` so passwords containing raw `@` characters are fully redacted
+// rather than partially leaked.
   return uri.replace(/\/\/.+@/, "//<redacted>@");
 }
 
 /**
- * Cached across invocations.
- *
- * A long-running server connects once at boot, but on a serverless host every
- * request can land on a warm instance that already has a connection, or on a
- * cold one that needs a new handshake. Connecting per request would open a
- * fresh pool each time and exhaust the cluster's connection limit under any
- * real traffic, so the promise is memoised and reused. It hangs off
- * `globalThis` rather than a module variable so a module reload (dev watch
- * mode, or a bundler re-evaluating the module) doesn't quietly start a second
- * connection alongside the first.
+ * Cached DB connection pool promise attached to `globalThis`.
+ * 
+ * Reuses active connections on warm serverless instances to avoid pool exhaustion,
+ * and survives module reloads in dev watch mode.
  */
 const globalWithMongoose = globalThis as typeof globalThis & {
   __novaMongooseConnection?: Promise<typeof mongoose>;
@@ -33,13 +25,10 @@ export async function connectDB(): Promise<void> {
 
     globalWithMongoose.__novaMongooseConnection = mongoose
       .connect(env.mongodbUri, {
-        // Fail fast rather than hanging for the default 30s: on a serverless
-        // host a stuck connect burns the whole function timeout and returns
-        // nothing useful.
+// Lower connection timeout to fail fast on serverless cold starts rather than consuming function runtime.
         serverSelectionTimeoutMS: 10_000,
       })
       .then((connection) => {
-        // eslint-disable-next-line no-console
         console.log(`[db] connected -> ${redactConnectionString(env.mongodbUri)}`);
         return connection;
       })

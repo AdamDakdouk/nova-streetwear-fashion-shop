@@ -5,9 +5,7 @@ import { z } from "zod";
  *
  * Note what is NOT here: the card number, expiry and CVV. Those stay in the
  * browser, are validated there, and are discarded once the simulated payment
- * finishes. Accepting them at this boundary would mean they could end up in a
- * request log, an error report, or the database — so the schema refuses to
- * take them at all, and zod strips anything unrecognised that is sent anyway.
+ * finishes. 
  */
 export const checkoutSchema = z.object({
   shippingAddress: z.object({
