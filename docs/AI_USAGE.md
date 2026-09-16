@@ -18,10 +18,10 @@ So AI was in the loop the whole way through, but nothing shipped without me actu
 
 AI got me a working first draft fast, but a handful of real bugs only showed up once the app was actually deployed and in front of real devices. For example:
 
-The homepage hero banner was missing on the live site. I caught this on the actual deployment, not in local dev, and the root cause was Vercel treating a catch-all route as if it only matched a single path segment, so any two-level API route (like `/api/hero/images`) was getting 404 in production even though it worked fine locally.
+The homepage hero banner was missing on the live site. I caught this on the actual deployment, not in local dev, and the root cause was Vercel treating a catch-all route as if it only matched a single path segment, so any two-level API route (like /api/site-content/hero) was getting 404 in production even though it worked fine locally.
 
 Also, a friend testing on an iPhone I don't own caught something I never would have seen myself alone.The issue was that tapping any input field forced Safari to zoom the whole page in. That's an iOS quirk where any input under 16px font size triggers auto-zoom on focus, so I went through and made sure every input stays at 16px on small screens.
-Another issue is that the search was returning nothing for totally normal terms like "hat" or "belts.".The AI-written search logic matched against exact titles and categories, but that's not how people actually search, so I reworked it to search across descriptions, tags, and variants too.
+Another issue is that the search was returning nothing for totally normal terms like "hat" or "belts.".The AI-written search logic matched against exact titles and categories, but that's not how people actually search, so I reworked it to search across titles, categories, slugs, and variant values
 
 ## What I Was Responsible For
 
