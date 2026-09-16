@@ -1,57 +1,32 @@
-# AI Methodology & Lifecycle Integration
+# AI Development Methodology
 
-## Overview
+## How I Used AI
 
-AI tools were used extensively throughout the development lifecycle of this project—not merely as a passive snippet generator, but as an active coding assistant, architectural sounding board, and rapid prototyping partner. Rather than masking AI involvement, this document transparently outlines how these tools were integrated into the workflow, where they accelerated development, and where critical human intervention was required to debug complex system behavior.
+I used AI-assisted development throughout this project (Claude), not just for one-off snippets here and there. Before I touched any AI tool, I worked out the project idea myself: the features, the assessment requirements, the project structure, and the tech stack. Once I had that clear in my head, I fed it to the AI tool as context and used it to help generate and implement the actual application on top of that plan.
 
-Full transparency of AI integration is also reflected in the repository history; key commits bear explicit `Co-authored-by:` git trailers.
+If you look at the git log, you'll see `Co-Authored-By` trailers on a lot of the commits,I wanted that to be visible rather than something you'd have to take my word for.
 
-## Workflow Integration & Scope
+## How I Actually Worked
 
-AI tools were integrated across the following core phases:
+My day-to-day loop looked roughly like this:
 
-- **Initial Scaffolding & Boilerplate:** Generating initial TypeScript interfaces, setting up basic Express route handlers, and scaffolding React component structures.
-- **Component Styling & Layouts:** Writing utility-first Tailwind layouts for standard e-commerce UI patterns (product cards, grid structures, checkout forms).
-- **Test Case Generation:** Expanding edge-case coverage for pure logical units, such as search filtering parameters and variant selection matrices in Vitest.
+1st I figure out what the feature needs to do, then I explain the behavior, architecture and the tech to the AI tool. Then, the AI generates the code, I read it, run the app and test all features, and if something broke or looked off, I dig into why. Then I either fix it myslef or ask the Ai to adjust it. I then re-run tests and check things by hand before moving on
 
-## Human Intervention & Critical Real-World Debugging
+So AI was in the loop the whole way through, but nothing shipped without me actually running it and looking at what came out the other end.
 
-While AI tools accelerated initial code generation, resolving real-world bugs, regional constraints, and hardware-specific edge cases required direct manual analysis and architectural overrides.
+## Where I Had to Step In
 
-### 1. Vercel Routing Bug & Catch-All API 404s
+AI got me a working first draft fast, but a handful of real bugs only showed up once the app was actually deployed and in front of real devices. For example:
 
-**The Issue:** On the deployed production site, the homepage hero banner failed to load.
+The homepage hero banner was missing on the live site. I caught this on the actual deployment, not in local dev, and the root cause was Vercel treating a catch-all route as if it only matched a single path segment, so any two-level API route (like `/api/hero/images`) was getting 404 in production even though it worked fine locally.
 
-**Root Cause & Fix:** Manual inspection revealed that Vercel's serverless routing engine registered a catch-all route treating multi-segment paths as a single segment. As a result, every two-level API request (e.g., `/api/hero/images`) returned a 404 Not Found. The API routing structure and routing fallback configurations had to be manually restructured to align with Vercel's deployment runtime.
+Also, a friend testing on an iPhone I don't own caught something I never would have seen myself alone.The issue was that tapping any input field forced Safari to zoom the whole page in. That's an iOS quirk where any input under 16px font size triggers auto-zoom on focus, so I went through and made sure every input stays at 16px on small screens.
+Another issue is that the search was returning nothing for totally normal terms like "hat" or "belts.".The AI-written search logic matched against exact titles and categories, but that's not how people actually search, so I reworked it to search across descriptions, tags, and variants too.
 
-### 2. Mobile Menu Stacking Context Bug
+## What I Was Responsible For
 
-**The Issue:** Testing the application on mobile revealed that the mobile drawer menu became completely unusable and untappable.
+I owned the requirements, the technical direction, and every decision about the architecture. AI helped write code, but I decided what got built and why. Nothing generated got treated as correct by default, I read it, ran it, and tested it before I called a feature done.
 
-**Root Cause & Fix:** AI-generated CSS had placed a `backdrop-filter` property directly on the parent sticky header. In modern browser rendering engines, `backdrop-filter` creates a new containing block and stacking context, trapping fixed-positioned child elements (the mobile drawer) inside the header bounds. The layout structure was manually refactored to isolate the drawer component outside the header's stacking context.
+## Testing
 
-### 3. iOS Safari Viewport Zoom on Input Focus
-
-**The Issue:** External hardware testing on an iPhone revealed that tapping any form field caused iOS Safari to forcibly zoom in on the page, breaking the responsive viewport scale.
-
-**Root Cause & Fix:** iOS Safari automatically triggers a canvas zoom on form controls styled with a font size smaller than 16px. Global CSS rules were updated to enforce `font-size: 16px` on all mobile inputs below the `sm` breakpoint.
-
-### 4. Search Vocabulary & Query Alignment
-
-**The Issue:** Initial AI-assisted search logic relied on strict title and category matches, returning zero results for common user search terms like "hat" or "belts".
-
-**Fix:** Real-world shopping vocabulary did not map cleanly to the static catalog titles. The search indexing logic was updated to search across product descriptions, tags, and variants to handle natural search terms seamlessly.
-
-### 5. Infrastructure & Regional Constraint Adaptation (R2 vs. Cloudinary)
-
-**The Decision:** Cloudinary is a common AI default recommendation for image hosting. However, due to service availability restrictions in my region, Cloudinary was unusable for this deployment.
-
-**Architectural Adjustment:** I evaluated alternatives and selected Cloudflare R2 for asset storage. S3-compatible API routes and upload handling were built manually to handle image uploads cleanly.
-
-### 6. Architectural Documentation Accuracy
-
-**The Intervention:** Standard AI generations often default to introducing extraneous third-party libraries (such as complex form management packages, ORMs, or schema validators). I manually drafted and vetted all four project architecture documents (`Database.md`, `Backend.md`, `Frontend.md`, and `AI_USAGE.md`) to ensure they accurately describe the precise codebase without reference to unused abstractions or external libraries.
-
-## Summary
-
-AI tools served as a high-velocity catalyst for writing initial code and exploring layout options. However, ensuring a robust end-to-end user experience required manual engineering oversight—specifically around deployment platform quirks, browser rendering behaviors, actual user search patterns, and regional infrastructure selection.
+Once something was implemented, I used the app myself and ran the automated tests to check the main flows actually worked. Whenever something went wrong, I used the error output and what I knew about the project to track down the cause, then re-ran the app or the tests to confirm the fix actually held.
